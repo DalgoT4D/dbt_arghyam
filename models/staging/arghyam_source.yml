@@ -4,10 +4,10 @@ sources:
   - name: source_arghyam_surveys
     schema: public
     tables:
-      - name: encounters
+      - name: encounters_normalized
         identifier: _airbyte_raw_encounters
         description: A form used to track and report issues on a daily basis.
-      - name: subjects
+      - name: subjects_normalized
         identifier: _airbyte_raw_subjects
-        description: Data structure containing unprocessed information about enrollments.
-     
+        description: A form used to track and report issues on a daily basis.
+    
