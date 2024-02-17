@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: source_arghyam_surveys
-    schema: public
+    schema: staging
     tables:
       - name: encounters_normalized
         identifier: _airbyte_raw_encounters
