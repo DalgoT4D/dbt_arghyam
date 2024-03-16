@@ -1,0 +1,12 @@
+dbt_arghyam:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: dalgo.cdybo3vdnbcr.ap-south-1.rds.amazonaws.com
+      user: postgres
+      password: 
+      port: 5432
+      dbname: dalgo
+      schema: test
+      threads: 4
