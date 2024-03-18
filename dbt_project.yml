@@ -34,10 +34,8 @@ models:
   dbt_arghyam:
     pre-hook:
       - "CREATE SCHEMA IF NOT EXISTS gold"
-    facts:
+    analytics:
       +materialized: table
-    dimensions:
-      +materialized: table 
     staging:
       +materialized: view
     # Apply more configurations as needed
