@@ -18,3 +18,19 @@ sources:
       description: Encounters extracted from staging layer. Semi-structured format.
     - name: subjects_normalized
       description: Subjects extracted from staging layer. Semi-structured format.
+    - name: location_intermediate
+      description: Intermediate step to extract and de-duplicate all data points regarding location. Structured table. 
+  
+  - name: analytics
+    schema: test
+    tables:
+    - name: location_dim
+      description: The location dimension table (Type 1 SCD)
+    - name: activity_dim
+      description: The acitivity dimension table (Type 1 SCD)
+    - name: meeting_form_responses_fact
+      description: Fact table to track meeting observations for Jal Jopal and WIMC meeting activities. 
+    - name: tank_cleaning_form_responses_fact
+      description: Fact table to track the observations made while performing tank cleaning activity.
+    - name: water_quality_testing_form_responses_fact
+      description: Fact table to track the observations made while performing the water quality testing activity.
