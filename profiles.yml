@@ -5,7 +5,7 @@ dbt_arghyam:
       type: postgres
       host: dalgo.cdybo3vdnbcr.ap-south-1.rds.amazonaws.com
       user: postgres
-      password: d8yYClKFHzlpox7YrJyX
+      password: <password>
       port: 5432
       dbname: dalgo
       schema: test
