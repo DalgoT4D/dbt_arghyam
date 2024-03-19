@@ -33,7 +33,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   dbt_arghyam:
     pre-hook:
-      - "CREATE SCHEMA IF NOT EXISTS gold"
+      - "CREATE SCHEMA IF NOT EXISTS analytics"
     analytics:
       +materialized: table
     staging:
