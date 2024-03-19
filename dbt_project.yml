@@ -36,6 +36,8 @@ models:
       - "CREATE SCHEMA IF NOT EXISTS analytics"
     analytics:
       +materialized: table
+    intermediate:
+      +materialized: view
     staging:
       +materialized: view
     # Apply more configurations as needed
