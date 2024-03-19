@@ -13,13 +13,11 @@ ranked_activities AS (
 )
 SELECT
     id,
-    activity_type,
-    -- location_id placeholder here - to be joined with another table
-    '{{ invocation_id }}' AS location_id,
-    CURRENT_TIMESTAMP AS create_timestamp,
-    --  create_audit_id to be populated during time of load
-    '{{ invocation_id }}' AS create_audit_id,
-    CURRENT_TIMESTAMP AS update_timestamp,
-    -- update_audit_id to be populated during time of load
-    '{{ invocation_id }}' AS update_audit_id
+    activity_type
+    , CURRENT_TIMESTAMP AS create_db_timestamp
+    , '{{ invocation_id }}' AS create_audit_id
+    , CURRENT_TIMESTAMP AS last_updated_timestamp
+    , '{{ invocation_id }}' AS update_audit_id 
+    , 1 AS is_active
+    /*CASE -- manually updated with 1 (True) or 0 (False) when an activity type becomes inactive*/
 FROM ranked_activities
