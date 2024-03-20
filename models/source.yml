@@ -19,8 +19,10 @@ sources:
       description: Subjects extracted from staging layer. Semi-structured format.
     - name: location_intermediate
       description: Intermediate step to extract and de-duplicate all data points regarding location. Structured table. 
+    - name: observations_intermediate
+      description: Intermediate step to extract and flatten all data points from Observations dictionary. Structured table. 
   - name: analytics
-    schema: test
+    schema: analytics
     tables:
     - name: location_dim
       description: The location dimension table (Type 1 SCD)
