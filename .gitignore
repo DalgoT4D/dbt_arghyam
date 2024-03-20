@@ -4,3 +4,6 @@ dbt-env/
 target/
 dbt_packages/
 logs/
+.user.yml
+.vscode/
+.gitkeep
