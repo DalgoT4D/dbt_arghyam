@@ -32,6 +32,12 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   dbt_arghyam:
-    # Config indicated by + and applies to all files under models/example/
-    example:
+    pre-hook:
+      - "CREATE SCHEMA IF NOT EXISTS analytics"
+    analytics:
+      +materialized: table
+    intermediate:
       +materialized: view
+    staging:
+      +materialized: view
+    # Apply more configurations as needed

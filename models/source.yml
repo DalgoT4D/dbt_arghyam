@@ -10,7 +10,6 @@ sources:
       - name: subjects
         identifier: _airbyte_raw_subjects
         description: A form used to track and report issues on a daily basis.
-    
   - name: silver
     schema: intermediate
     tables:
@@ -20,7 +19,6 @@ sources:
       description: Subjects extracted from staging layer. Semi-structured format.
     - name: location_intermediate
       description: Intermediate step to extract and de-duplicate all data points regarding location. Structured table. 
-  
   - name: analytics
     schema: test
     tables:
