@@ -6,6 +6,7 @@
 WITH cleaned_encounters AS (
 	SELECT
 		id,
+		encounter_type,
 		-- Adding meeting form responses fact fields
 		CAST(CAST(observations AS JSONB) ->> 'Date of WIMC meeting' AS DATE) AS meeting_date,
 		CAST(CAST(observations AS JSONB) ->> 'How many members attended the meeting' AS INT) AS num_participants,
@@ -42,6 +43,6 @@ WITH cleaned_encounters AS (
 			AND observations::text <> '{}'
 )
 SELECT
-	id, meeting_date, num_participants, num_women_participants, num_days_water_unavailable, reasons_water_unavailable, date_sample_collection, date_testing, ph_count, chloride_count, hardness, total_alkalinity, bacterial_contamination, nitrate_count, iron_count, arsenic_count, fluoride_count, photos
+	id, encounter_type, meeting_date, num_participants, num_women_participants, num_days_water_unavailable, reasons_water_unavailable, date_sample_collection, date_testing, ph_count, chloride_count, hardness, total_alkalinity, bacterial_contamination, nitrate_count, iron_count, arsenic_count, fluoride_count, photos
 FROM
 	cleaned_encounters;
