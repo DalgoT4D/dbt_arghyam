@@ -11,13 +11,17 @@ WITH
             , sub.location
             , enc.observations
             , brd.location_id
-            --, act.id AS activity_id
+           --  , act.id AS activity_id
         FROM {{ ref ('encounters_cdc') }} as enc
         LEFT JOIN {{ ref ('subjects_cdc') }} as sub ON enc.subject_id = sub.id
         INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
-        --INNER JOIN {{ ref ('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
+        -- INNER JOIN {{ ref ('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
         WHERE enc.encounter_type = 'Tank Cleaning'
         AND enc.observations != '{}'
+        {% if is_incremental() %}
+        AND TO_TIMESTAMP(json_extract_path_text(raw_data.observations::json, 'Date of tank cleaning'), 
+                        'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= (SELECT MAX(create_db_timestamp) FROM {{ this }})
+        {% endif %}
 )
 , extract_fields AS (
     SELECT
@@ -41,4 +45,6 @@ SELECT
              , photo_written_notification
          ] AS photos_tank_cleaning 
     , remarks
+    , CURRENT_TIMESTAMP AS create_db_timestamp
+    , '{{ invocation_id }}' AS create_audit_id
 FROM extract_fields
