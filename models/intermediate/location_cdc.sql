@@ -1,6 +1,5 @@
 {{
     config(
-        target_schema = 'intermediate',
         materialized='incremental',
         incremental_strategy='delete+insert',
     )
