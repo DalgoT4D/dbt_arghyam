@@ -37,7 +37,7 @@ WITH cleaned_encounters AS (
 				OR KEY LIKE 'Photo of the WIMC meeting register with the minutes'
 				OR KEY LIKE 'Take a picture of the meeting WIMC when there is maximum attendance') AS photos
 		FROM
-			{{ source('silver', 'encounters_normalized') }}
+			{{ source('silver', 'encounters_cdc') }}
 		WHERE
 			observations IS NOT NULL
 			AND observations::text <> '{}'

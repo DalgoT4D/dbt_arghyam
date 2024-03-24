@@ -17,7 +17,6 @@ WITH meeting_form_responses AS (
 		{{ ref ('observations_intermediate') }} as obs 
         LEFT JOIN activity_dim as activity
             ON obs.encounter_type = activity.activity_type
-		-- Add location join later when activity is updated to also include location fields as discussed
 )
 SELECT
 	*

@@ -28,8 +28,6 @@ WITH water_quality_form_responses AS (
 		{{ ref ('observations_intermediate') }} as obs 
 		LEFT JOIN activity_dim as activity
             ON obs.encounter_type = activity.activity_type
-		--     LEFT JOIN location_dim ON ...
-		--     -- Include additional JOINs as necessary
 )
 SELECT
 	*
