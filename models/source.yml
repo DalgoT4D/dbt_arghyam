@@ -35,7 +35,7 @@ sources:
     - name: bridge_dim
       description: Bridge dimension table to connect the subjects_id and location NK of the location_dim
 
-  - name: cdc_models
+  - name: cdc_data
     schema: test
     tables:
     - name: subjects_cdc
