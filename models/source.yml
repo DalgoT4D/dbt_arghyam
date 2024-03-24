@@ -18,8 +18,6 @@ sources:
       description: Encounters extracted from staging layer. Semi-structured format.
     - name: subjects_normalized
       description: Subjects extracted from staging layer. Semi-structured format.
-    - name: location_intermediate
-      description: Intermediate step to extract and de-duplicate all data points regarding location. Structured table. 
 
   - name: analytics
     schema: test
@@ -42,3 +40,5 @@ sources:
       description: Table built on top of subjects_normalized to include NK and op_type
     - name: encounters_cdc
       description: Table built on top of encounters_normalized to include NK and op_type
+    - name: location_cdc
+      description: Table built on top of subjects_normalized to get location data from `location` JSON field and included NK and op_type
