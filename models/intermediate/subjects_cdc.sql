@@ -17,7 +17,7 @@ SELECT
     , sub.location 
     , sub.audit 
     , sub.observations 
-    , CAST(sub.registration_date AS DATE)
+    , CAST(sub.registration_date AS DATE) AS registration_date
     , CASE 
         WHEN TO_TIMESTAMP(sub.last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') = TO_TIMESTAMP(json_extract_path_text(sub.audit::json, 'Created at'), 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') THEN 'C'
         WHEN TO_TIMESTAMP(sub.last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= TO_TIMESTAMP(json_extract_path_text(sub.audit::json, 'Created at'), 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') THEN 'U'
