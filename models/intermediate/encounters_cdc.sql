@@ -1,11 +1,13 @@
 {{
     config(
-        materialized='incremental'
+        materialized='incremental',
+        unique_key='id',
+        incremental_strategy='delete+insert',
     )
 }}
 
 SELECT
-    CAST( {{ dbt_utils.generate_surrogate_key(['enc._airbyte_ab_id', 'enc.id']) }} AS VARCHAR) AS encounters_nk_id
+    enc.id
     , enc._airbyte_ab_id AS airbyte_raw_id 
     , TO_TIMESTAMP(enc.max_scheduled_date, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') AS max_scheduled_date
     , TO_TIMESTAMP(enc.last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') AS last_modified_at
@@ -15,7 +17,6 @@ SELECT
     , enc.cancel_location
     , TO_TIMESTAMP(enc.earliest_scheduled_date, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') AS earliest_scheduled_date
     , TO_TIMESTAMP(enc.encounter_date_time, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') AS encounter_date_time
-    , enc.id
     , enc.encounter_type
     , enc.encounter_location
     , enc.observations

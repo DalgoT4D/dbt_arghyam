@@ -1,14 +1,15 @@
 {{
     config(
-        materialized='incremental'
+        materialized='incremental',
+        unique_key='id',
+        incremental_strategy='delete+insert',
     )
 }}
 
 SELECT
-    CAST( {{ dbt_utils.generate_surrogate_key(['sub._airbyte_ab_id', 'sub.id']) }} AS VARCHAR) AS subjects_nk_id
+    sub.id 
     , sub._airbyte_ab_id AS airbyte_raw_id 
     , sub.catchments 
-    , sub.id 
     , sub.encounters 
     , sub.voided 
     , sub.registration_location 
