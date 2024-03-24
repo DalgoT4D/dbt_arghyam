@@ -1,3 +1,8 @@
+{#
+Object Name: bridge_dim
+Purpose: To connect the location_dim to subject_id
+#}
+
 {{
     config(
         materialized='table'
