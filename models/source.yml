@@ -32,15 +32,11 @@ sources:
       description: Fact table to track the observations made while performing tank cleaning activity.
     - name: water_quality_testing_form_responses_fact
       description: Fact table to track the observations made while performing the water quality testing activity.
-    - name: bridge_dim
-      description: Bridge dimension table to connect the subjects_id and location NK of the location_dim
 
-  - name: cdc_data
+  - name: cdc_models
     schema: test
     tables:
     - name: subjects_cdc
       description: Table built on top of subjects_normalized to include NK and op_type
     - name: encounters_cdc
       description: Table built on top of encounters_normalized to include NK and op_type
-    - name: location_cdc
-      description: Table built on top of subjects_normalized to get location data from `location` JSON field and included NK and op_type

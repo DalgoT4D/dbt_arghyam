@@ -20,7 +20,16 @@ WITH extract_raw_data AS (
     from {{ ref ('subjects_cdc') }} AS sub
 )
 
-SELECT 
+, transform_keys AS (
+    SELECT 
     subjects_id,
     CAST( {{ dbt_utils.generate_surrogate_key(['ward_name', 'block_name', 'district_name', 'gp_name']) }} AS VARCHAR) AS location_id
 FROM extract_raw_data
+)
+
+SELECT 
+    CAST( {{ dbt_utils.generate_surrogate_key(['subjects_id', 'location_id']) }} AS VARCHAR) AS id
+    , subjects_id
+    , location_id
+FROM transform_keys
+
