@@ -17,26 +17,26 @@ WITH
 SELECT
     CASE
         WHEN tgt.location_nk IS NULL
-    THEN ((SELECT max_sk FROM cte_get_max_pk) + (ROW_NUMBER() OVER (ORDER BY (SELECT 1))))
+    THEN ((SELECT max_sk FROM cte_get_max_pk) + (ROW_NUMBER() OVER (ORDER BY district, block, gram_panchayat, ward)))
         ELSE tgt.location_dim_id 
     END AS location_dim_id
     , location_id AS location_nk
-    , CASE 
-        WHEN sub.op_type IN ('C', 'U') THEN sub.ward_name 
-        ELSE tgt.ward
-    END AS ward
-    , CASE 
-        WHEN sub.op_type IN ('C', 'U') THEN sub.block_name 
-        ELSE tgt.block 
-    END AS block
     , CASE 
         WHEN sub.op_type IN ('C', 'U') THEN sub.district_name
         ELSE tgt.district
     END AS district
     , CASE 
+        WHEN sub.op_type IN ('C', 'U') THEN sub.block_name 
+        ELSE tgt.block 
+    END AS block
+    , CASE 
         WHEN sub.op_type IN ('C', 'U') THEN sub.gp_name
         ELSE tgt.gram_panchayat
     END AS gram_panchayat
+    , CASE 
+        WHEN sub.op_type IN ('C', 'U') THEN sub.ward_name 
+        ELSE tgt.ward
+    END AS ward
     , CASE 
         WHEN sub.op_type='C' THEN CURRENT_TIMESTAMP
         ELSE tgt.create_db_timestamp
