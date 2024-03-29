@@ -10,7 +10,7 @@ WITH
             enc.subject_type
             , sub.location
             , enc.observations
-            , brd.location_id
+            , brd.location_id -- same as SK of location_dim table
            --  , act.id AS activity_id
         FROM {{ ref ('encounters_cdc') }} as enc
         LEFT JOIN {{ ref ('subjects_cdc') }} as sub ON enc.subject_id = sub.id

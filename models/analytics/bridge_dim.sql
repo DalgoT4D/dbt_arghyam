@@ -23,7 +23,7 @@ WITH extract_raw_data AS (
 , transform_keys AS (
     SELECT 
     subjects_id,
-    CAST( {{ dbt_utils.generate_surrogate_key(['ward_name', 'block_name', 'district_name', 'gp_name']) }} AS VARCHAR) AS location_id
+    CAST( {{ dbt_utils.generate_surrogate_key(['ward_name', 'block_name', 'district_name', 'gp_name']) }} AS VARCHAR) AS location_id -- Surrogate key of location dim table 
 FROM extract_raw_data
 )
 

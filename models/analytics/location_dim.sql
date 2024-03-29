@@ -2,7 +2,7 @@
     config(
         materialized='incremental',
         incremental_strategy='delete+insert',
-        unique_key='location_nk',
+        unique_key='location_sk',
     ) 
 }}
 
@@ -10,17 +10,20 @@
 WITH 
     cte_get_max_pk AS (
         -- Getting the last PK in target table
-        SELECT COALESCE(MAX(location_dim_id), 0 ) AS max_sk
+        SELECT COALESCE(MAX(location_dim_id), 0 ) AS max_pk
         FROM {{ this }}
     )
 
 SELECT
     CASE
-        WHEN tgt.location_nk IS NULL
-    THEN ((SELECT max_sk FROM cte_get_max_pk) + (ROW_NUMBER() OVER (ORDER BY district, block, gram_panchayat, ward)))
+        WHEN tgt.location_sk IS NULL
+    THEN ((SELECT max_pk FROM cte_get_max_pk) + (ROW_NUMBER() OVER (ORDER BY district, block, gram_panchayat, ward)))
         ELSE tgt.location_dim_id 
     END AS location_dim_id
-    , location_id AS location_nk
+    , CASE 
+        WHEN sub.op_type = 'C' THEN sub.location_id 
+        ELSE tgt.location_sk
+    END AS location_sk
     , CASE 
         WHEN sub.op_type IN ('C', 'U') THEN sub.district_name
         ELSE tgt.district
@@ -58,7 +61,7 @@ SELECT
         ELSE 1*/
 FROM
     {{ ref ('location_cdc') }} AS sub
-LEFT JOIN {{ source ('analytics', 'location_dim') }} AS tgt ON sub.location_id = tgt.location_nk
+LEFT JOIN {{ source ('analytics', 'location_dim') }} AS tgt ON sub.location_id = tgt.location_sk
 
 {% if is_incremental() %}
     WHERE sub.src_last_modified_at >= (SELECT MAX(last_updated_timestamp) FROM {{ this }})
