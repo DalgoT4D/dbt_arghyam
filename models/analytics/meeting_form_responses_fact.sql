@@ -1,27 +1,24 @@
-{{ config(materialized='table') }}
+{{ config(materialized='incremental') }}
 
-WITH transformed_encounters AS (
+WITH meeting_form_responses AS (
 	SELECT
-		meeting_date,
-		-- Replace with actual logic to join and derive activity_id from activity dim table
-		--         activity_dim.id AS activity_id,
-		-- Replace with actual logic to join and derive location_id from location dim table
-		-- 		location_dim.id AS location_id,
-		num_participants,
-		num_women_participants,
-		num_days_water_unavailable,
-		reasons_water_unavailable,
-		photos
+        obs.id,
+		obs.meeting_date,
+        obs.encounter_type,
+		obs.num_participants,
+		obs.num_women_participants,
+		obs.num_days_water_unavailable,
+		obs.reasons_water_unavailable,
+		obs.photos
 	FROM
-		cleaned_encounters
-		--     LEFT JOIN activity_dim ON ...
-		--     LEFT JOIN location_dim ON ...
-		--     -- Include additional JOINs as necessary
+		{{ ref ('observations_intermediate') }} as obs 
+        LEFT JOIN activity_dim as activity
+            ON obs.encounter_type = activity.activity_type
 )
 SELECT
 	*
 FROM
-	{{ ref ('meeting_form_responses_intermediate') }} AS sub
+	meeting_form_responses
 
 	
 	
