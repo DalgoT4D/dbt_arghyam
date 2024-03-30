@@ -25,7 +25,7 @@ SELECT
         ELSE 'NA'
     END AS op_type
 FROM {{ source('silver', 'subjects_normalized') }} AS sub
--- LEFT JOIN {{ source('silver', 'subjects_cdc') }} AS tgt ON tgt.airbyte_raw_id = sub._airbyte_ab_id
+-- LEFT JOIN {{ source('cdc_models', 'subjects_cdc') }} AS tgt ON tgt.airbyte_raw_id = sub._airbyte_ab_id
 
 {% if is_incremental() %}
   WHERE TO_TIMESTAMP(sub.last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= (SELECT MAX(last_modified_at) FROM {{ this }})
