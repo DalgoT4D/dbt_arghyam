@@ -6,6 +6,7 @@
 WITH cleaned_encounters AS (
 	SELECT
 		id,
+		subject_id,
 		encounter_type,
 		-- Adding meeting form responses fact fields
 		CAST(CAST(observations AS JSONB) ->> 'Date of WIMC meeting' AS DATE) AS meeting_date,
@@ -35,14 +36,16 @@ WITH cleaned_encounters AS (
 				KEY LIKE 'Photo of the log-book of the entire month_%'
 				OR KEY LIKE 'Take picture of the Jal Chuapal proceedings_%'
 				OR KEY LIKE 'Photo of the WIMC meeting register with the minutes'
-				OR KEY LIKE 'Take a picture of the meeting WIMC when there is maximum attendance') AS photos
+				OR KEY LIKE 'Take a picture of the meeting WIMC when there is maximum attendance'
+				-- OR KEY LIKE -- to add register book
+				) AS photos -- Need to split this field based on activity_type
 		FROM
-			{{ source('silver', 'encounters_cdc') }}
+			{{ ref ('encounters_cdc') }}
 		WHERE
 			observations IS NOT NULL
 			AND observations::text <> '{}'
 )
 SELECT
-	id, encounter_type, meeting_date, num_participants, num_women_participants, num_days_water_unavailable, reasons_water_unavailable, date_sample_collection, date_testing, ph_count, chloride_count, hardness, total_alkalinity, bacterial_contamination, nitrate_count, iron_count, arsenic_count, fluoride_count, photos
+	id, encounter_type, subject_id, meeting_date, num_participants, num_women_participants, num_days_water_unavailable, reasons_water_unavailable, date_sample_collection, date_testing, ph_count, chloride_count, hardness, total_alkalinity, bacterial_contamination, nitrate_count, iron_count, arsenic_count, fluoride_count, photos
 FROM
-	cleaned_encounters;
+	cleaned_encounters
