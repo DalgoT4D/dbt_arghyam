@@ -49,7 +49,7 @@ SELECT
     , activity_id
 	, num_participants
 	, CAST(num_women_participants AS INT) AS num_women_participants
-	, personal_attendees
+	, types_of_attendees
 	, remarks
     , ARRAY [
              photo_proceedings
