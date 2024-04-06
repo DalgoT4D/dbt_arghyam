@@ -14,6 +14,7 @@ SELECT
     , sub.block_name AS block
     , sub.gp_name AS gram_panchayat
     , sub.ward_name AS ward
+    , CONCAT(sub.block_name, ' ', sub.ward_name) AS block_level
     , CURRENT_TIMESTAMP AS create_db_timestamp
     , '{{ invocation_id }}' AS create_audit_id
     , CURRENT_TIMESTAMP AS last_updated_timestamp
@@ -23,4 +24,4 @@ SELECT
         ELSE 1*/
 FROM
     {{ ref ('location_cdc') }} AS sub
-LEFT JOIN {{ source ('analytics', 'location_dim') }} AS tgt ON sub.location_id = tgt.location_sk
+-- LEFT JOIN {{ source ('analytics', 'location_dim') }} AS tgt ON sub.location_id = tgt.location_sk

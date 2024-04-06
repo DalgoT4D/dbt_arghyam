@@ -1,40 +1,68 @@
-{{ config(materialized='incremental',
-        incremental_strategy='append'
-    ) 
+{{
+    config(
+        materialized='table'
+    )
 }}
 
-WITH water_quality_form_responses AS (
-	SELECT
-        obs.id AS encounters_id,
-		obs.date_sample_collection,
-        obs.date_testing,
-        brd.location_id, -- same as SK of location_dim table
-        obs.ph_count,
-        obs.chloride_count,
-        obs.hardness,
-        obs.total_alkalinity,
-        obs.bacterial_contamination,
-        obs.nitrate_count,
-        obs.iron_count,
-        obs.arsenic_count,
-        obs.fluoride_count,
-		obs.photos,
-        CURRENT_TIMESTAMP AS create_db_timestamp,
-        '{{ invocation_id }}' AS create_audit_id
-	FROM
-		{{ ref ('observations_intermediate') }} as obs 
-	-- LEFT JOIN {{ ref('activity_dim') }} as activity ON obs.encounter_type = activity.activity_type
-    LEFT JOIN {{ ref ('subjects_cdc') }} as sub ON obs.subject_id = sub.id
-    INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
-    WHERE obs.encounter_type = 'Water Quality testing'
-    {% if is_incremental() %} -- to check for field that won't have a delay in reporting
-        AND obs.date_sample_collection >= (SELECT CAST(MAX(create_db_timestamp) AS DATE) FROM {{ this }})
-    {% endif %}
+WITH 
+    wq_raw_data AS (
+        SELECT 
+            enc.id AS encounter_id
+            , enc.subject_type
+            , sub.location
+            , enc.observations
+            , enc.audit
+            , brd.location_id -- same as SK of location_dim table
+            , act.activity_id AS activity_id
+        FROM {{ ref ('encounters_cdc') }} as enc
+        INNER JOIN {{ ref ('subjects_cdc') }} as sub ON enc.subject_id = sub.id
+        INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
+        INNER JOIN {{ ref ('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
+        WHERE enc.encounter_type = 'Water Quality testing'
+        AND enc.observations != '{}'
+        -- {% if is_incremental() %}
+        -- AND TO_TIMESTAMP(json_extract_path_text(raw_data.observations::json, 'Date of tank cleaning'), 
+        --                 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= (SELECT MAX(tank_cleaning_date) FROM {{ this }})
+        -- {% endif %}
 )
-SELECT
-	*
-FROM
-	water_quality_form_responses
+, extract_fields AS (
+    SELECT
+        encounter_id,
+        location_id,
+        activity_id,
+        CAST(CAST(observations AS JSONB) ->> 'Date of sample collection' AS DATE) AS date_sample_collection,
+		CAST(CAST(observations AS JSONB) ->> 'Date of testing' AS DATE) AS date_testing,
+		CAST(CAST(observations AS JSONB) ->> 'PH' AS FLOAT) AS ph_count,
+		CAST(CAST(observations AS JSONB) ->> 'Chloride' AS FLOAT) AS chloride_count,
+		CAST(CAST(observations AS JSONB) ->> 'Total Hardness' AS FLOAT) AS hardness,
+		CAST(CAST(observations AS JSONB) ->> 'Total Alkalnity' AS FLOAT) AS total_alkalinity,
+		CAST(CAST(observations AS JSONB) ->> 'Bacteriological Contamination' AS VARCHAR) AS bacterial_contamination,
+		CAST(CAST(observations AS JSONB) ->> 'Nitrate' AS FLOAT) AS nitrate_count,
+		CAST(CAST(observations AS JSONB) ->> 'Iron' AS FLOAT) AS iron_count,
+		CAST(CAST(observations AS JSONB) ->> 'Arsenic' AS FLOAT) AS arsenic_count,
+		CAST(CAST(observations AS JSONB) ->> 'Fluoride' AS FLOAT) AS fluoride_count,
+        json_extract_path_text(raw_data.audit::json, 'Created at') AS created_at_timestamp,
+        json_extract_path_text(raw_data.audit::json, 'Last modified at') AS last_modified_timestamp
+    FROM wq_raw_data AS raw_data
+)
 
-	
-	
+SELECT 
+    encounter_id
+    , location_id
+    , activity_id
+    , date_sample_collection
+    , date_testing
+    , ph_count
+    , chloride_count
+    , hardness
+    , total_alkalinity
+    , bacterial_contamination
+    , nitrate_count
+    , iron_count
+    , arsenic_count
+    , fluoride_count
+    , created_at_timestamp
+    , last_modified_timestamp
+    , CURRENT_TIMESTAMP AS create_db_timestamp
+    , '{{ invocation_id }}' AS create_audit_id
+FROM extract_fields
