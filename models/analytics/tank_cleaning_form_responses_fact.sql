@@ -7,7 +7,8 @@
 WITH 
     tank_cleaning_raw_data AS (
         SELECT 
-            enc.subject_type
+            enc.id AS encounter_id
+            , enc.subject_type
             , sub.location
             , enc.observations
             , enc.audit
@@ -26,7 +27,8 @@ WITH
 )
 , extract_fields AS (
     SELECT
-        location_id
+        encounter_id
+        , location_id
         , activity_id
         , json_extract_path_text(raw_data.observations::json, 'Date of tank cleaning') AS tank_cleaning_date
         , json_extract_path_text(raw_data.observations::json, 'Take a picture of the tank cleaning process') AS photo_tank_cleaning_process
@@ -39,9 +41,10 @@ WITH
 )
 
 SELECT 
-    tank_cleaning_date::timestamp::date
+    encounter_id
     , location_id
     , activity_id
+    , tank_cleaning_date::timestamp::date
     , ARRAY [
              photo_tank_cleaning_process
              , photo_wimc_sign

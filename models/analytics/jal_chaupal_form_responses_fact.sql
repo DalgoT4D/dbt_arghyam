@@ -33,7 +33,7 @@ WITH
         , json_extract_path_text(raw_data.observations::json, 'Date of jal chaupal') AS meeting_date
         , json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') AS num_participants
 		, json_extract_path_text(raw_data.observations::json, 'How many women participants attended the meeting') AS num_women_participants
-		, json_extract_path_text(raw_data.observations::json, 'Select if any of the below personal attended') AS personal_attendees
+		, json_extract_path_text(raw_data.observations::json, 'Select if any of the below personal attended') AS types_of_attendees
         , json_extract_path_text(raw_data.observations::json, 'Take picture of the Jal Chuapal proceedings') AS photo_proceedings
 		, json_extract_path_text(raw_data.observations::json, 'Take a picture of the Jal Chaupal when there is maximum attendance') AS photo_max_attendance
         , json_extract_path_text(raw_data.observations::json, 'Remarks') AS remarks
@@ -44,9 +44,9 @@ WITH
 
 SELECT 
 	encounter_id
-    , meeting_date::timestamp::date
     , location_id
     , activity_id
+    , meeting_date::timestamp::date
 	, num_participants
 	, CAST(num_women_participants AS INT) AS num_women_participants
 	, types_of_attendees
