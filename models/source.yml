@@ -5,38 +5,38 @@ sources:
     schema: staging
     tables:
       - name: encounters
-        identifier: _airbyte_raw_encounters
+        identifier: encounters
         description: A form used to track and report issues on a daily basis.
       - name: subjects
-        identifier: _airbyte_raw_subjects
+        identifier: subjects
         description: A form used to track and report issues on a daily basis.
 
-  - name: silver
-    schema: intermediate
-    tables:
-    - name: encounters_normalized
-      description: Encounters extracted from staging layer. Semi-structured format.
-    - name: subjects_normalized
-      description: Subjects extracted from staging layer. Semi-structured format.
+  # - name: silver
+  #   schema: intermediate
+  #   tables:
+  #     - name: encounters_normalized
+  #       description: Encounters extracted from staging layer. Semi-structured format.
+  #     - name: subjects_normalized
+  #       description: Subjects extracted from staging layer. Semi-structured format.
 
-  - name: analytics
-    schema: test
-    tables:
-    - name: location_dim
-      description: The location dimension table (Type 1 SCD)
-    - name: activity_dim
-      description: The acitivity dimension table (Type 1 SCD)
-    - name: meeting_form_responses_fact
-      description: Fact table to track meeting observations for Jal Jopal and WIMC meeting activities. 
-    - name: tank_cleaning_form_responses_fact
-      description: Fact table to track the observations made while performing tank cleaning activity.
-    - name: water_quality_testing_form_responses_fact
-      description: Fact table to track the observations made while performing the water quality testing activity.
+  # # - name: analytics
+  #   schema: test
+  #   tables:
+  #   - name: location_dim
+  #     description: The location dimension table (Type 1 SCD)
+  #   - name: activity_dim
+  #     description: The acitivity dimension table (Type 1 SCD)
+  #   - name: meeting_form_responses_fact
+  #     description: Fact table to track meeting observations for Jal Jopal and WIMC meeting activities.
+  #   - name: tank_cleaning_form_responses_fact
+  #     description: Fact table to track the observations made while performing tank cleaning activity.
+  #   - name: water_quality_testing_form_responses_fact
+  #     description: Fact table to track the observations made while performing the water quality testing activity.
 
-  - name: cdc_models
-    schema: test
-    tables:
-    - name: subjects_cdc
-      description: Table built on top of subjects_normalized to include NK and op_type
-    - name: encounters_cdc
-      description: Table built on top of encounters_normalized to include NK and op_type
+  # - name: cdc_models
+  #   schema: test
+  #   tables:
+  #   - name: subjects_cdc
+  #     description: Table built on top of subjects_normalized to include NK and op_type
+  #   - name: encounters_cdc
+  #     description: Table built on top of encounters_normalized to include NK and op_type
