@@ -1,4 +1,4 @@
-{{ config(materialized='table') }}
+{{ config(materialized='table', schema='analytics') }}
  -- Follows SCD 0
 
 WITH unique_activities AS (

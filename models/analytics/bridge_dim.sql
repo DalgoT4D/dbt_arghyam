@@ -5,7 +5,8 @@ Purpose: To connect the location_dim to subject_id
 
 {{
     config(
-        materialized='table'
+        materialized='table',
+        schema='analytics'
     )
 }}
 
