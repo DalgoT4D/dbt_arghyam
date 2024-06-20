@@ -1,4 +1,4 @@
-{{ config(materialized='table', schema='analytics') }}
+{{ config(materialized='table') }}
 
 SELECT
     location_id AS location_sk,
