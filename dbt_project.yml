@@ -41,3 +41,6 @@ models:
     staging:
       +materialized: view
     # Apply more configurations as needed
+  elementary:
+    +schema: "elementary"
+    # enabled: "{{ target.name in ['prod'] }}"
