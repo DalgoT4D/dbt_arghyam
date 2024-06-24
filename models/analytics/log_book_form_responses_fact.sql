@@ -10,10 +10,11 @@ log_book_raw_data AS (
     SELECT 
         enc.id AS encounter_id,
         enc.subject_type,
+        enc.username,
         sub.location,
         enc.observations,
         enc.audit,
-        brd.location_id, -- same as SK of location_dim table
+        brd.location_id,
         act.activity_id AS activity_id
     FROM {{ ref ('encounters_cdc') }} as enc
     INNER JOIN {{ ref ('subjects_cdc') }} as sub ON enc.subject_id = sub.id
@@ -21,16 +22,13 @@ log_book_raw_data AS (
     INNER JOIN {{ ref ('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
     WHERE enc.encounter_type = 'Log book record'
     AND enc.observations != '{}'
-    -- {% if is_incremental() %}
-    -- AND TO_TIMESTAMP(json_extract_path_text(raw_data.observations::json, 'Date of tank cleaning'), 
-    --                 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= (SELECT MAX(meeting_date) FROM {{ this }})
-    -- {% endif %}
 ), 
 extract_fields AS (
     SELECT
         encounter_id,
         location_id,
         activity_id,
+        username,
         json_extract_path_text(raw_data.observations::json, 'Reporting Year') AS reporting_year,
         json_extract_path_text(raw_data.observations::json, 'Reporting month') AS reporting_month,
         json_extract_path_text(raw_data.observations::json, 'Photo of the log-book of the entire month') AS photo_logbook,
@@ -42,16 +40,17 @@ extract_fields AS (
 )
 
 SELECT 
-    encounter_id,
+    -- encounter_id,
     reporting_year::int,
     reporting_month,
     location_id,
-    activity_id,
+    username,
+    -- activity_id,
     days_no_water::int,
     reasons_no_water,
-    photo_logbook,
-    created_at_timestamp,
-    last_modified_timestamp,
+    -- photo_logbook,
+    -- created_at_timestamp,
+    -- last_modified_timestamp,
     CURRENT_TIMESTAMP AS create_db_timestamp,
     '{{ invocation_id }}' AS create_audit_id
 FROM extract_fields
