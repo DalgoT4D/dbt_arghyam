@@ -21,9 +21,7 @@ WITH source AS (
         to_timestamp("Encounter_date_time", 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') as encounter_date_time,
         "Subject_external_ID" as subject_external_id,
         to_timestamp("Earliest_scheduled_date", 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') as earliest_scheduled_date,
-        _airbyte_raw_id,
-        _airbyte_extracted_at,
-        _airbyte_meta,
+        json_extract_path_text(audit::json, 'Created by') as username,
         CASE 
             WHEN to_timestamp(last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') = to_timestamp(json_extract_path_text(audit::json, 'Created at'), 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') THEN 'C'
             WHEN to_timestamp(last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= to_timestamp(json_extract_path_text(audit::json, 'Created at'), 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') THEN 'U'
@@ -35,6 +33,7 @@ WITH source AS (
 SELECT
     id,
     audit,
+    username,
     voided,
     subject_id,
     external_id,

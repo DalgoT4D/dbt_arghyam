@@ -10,6 +10,7 @@ WITH
         SELECT 
             enc.id AS encounter_id
             , enc.subject_type
+            , enc.username
             , sub.location
             , enc.observations
             , enc.audit
@@ -31,6 +32,7 @@ WITH
         encounter_id,
         location_id,
         activity_id,
+        username,
         CAST(CAST(observations AS JSONB) ->> 'Date of sample collection' AS DATE) AS date_sample_collection,
 		CAST(CAST(observations AS JSONB) ->> 'Date of testing' AS DATE) AS date_testing,
 		CAST(CAST(observations AS JSONB) ->> 'PH' AS FLOAT) AS ph_count,
@@ -48,10 +50,11 @@ WITH
 )
 
 SELECT 
-    encounter_id
-    , location_id
-    , activity_id
-    , date_sample_collection
+    -- encounter_id
+    -- , location_id
+    -- , activity_id
+    date_sample_collection
+    , username
     , date_testing
     , ph_count
     , chloride_count
@@ -62,8 +65,8 @@ SELECT
     , iron_count
     , arsenic_count
     , fluoride_count
-    , created_at_timestamp
-    , last_modified_timestamp
-    , CURRENT_TIMESTAMP AS create_db_timestamp
+    -- , created_at_timestamp
+    -- , last_modified_timestamp
+    -- , CURRENT_TIMESTAMP AS create_db_timestamp
     , '{{ invocation_id }}' AS create_audit_id
 FROM extract_fields

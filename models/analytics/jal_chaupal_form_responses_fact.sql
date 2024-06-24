@@ -10,6 +10,7 @@ WITH
         SELECT 
             enc.id AS encounter_id,
             enc.subject_type,
+            enc.username,
             sub.location,
             enc.observations,
             enc.audit,
@@ -31,6 +32,7 @@ extract_fields AS (
 	    encounter_id,
         location_id,
         activity_id,
+        username,
         json_extract_path_text(raw_data.observations::json, 'Date of jal chaupal') AS meeting_date,
         json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') AS num_participants,
         json_extract_path_text(raw_data.observations::json, 'How many women participants attended the meeting') AS num_women_participants,
@@ -44,16 +46,17 @@ extract_fields AS (
 )
 
 SELECT 
-	encounter_id,
+	-- encounter_id,
     meeting_date::timestamp::date,
-    location_id,
-    activity_id,
+    username,
+    -- location_id,
+    -- activity_id,
     num_participants,
     CAST(num_women_participants AS INT) AS num_women_participants,
     remarks,
     ARRAY [photo_proceedings, photo_max_attendance] AS photos_jal_chaupal,
-    created_at_timestamp,
-    last_modified_timestamp,
-    CURRENT_TIMESTAMP AS create_db_timestamp,
+    -- created_at_timestamp,
+    -- last_modified_timestamp,
+    -- CURRENT_TIMESTAMP AS create_db_timestamp,
     '{{ invocation_id }}' AS create_audit_id
 FROM extract_fields

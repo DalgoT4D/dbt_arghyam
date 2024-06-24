@@ -19,9 +19,7 @@ WITH source AS (
         to_timestamp(last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') as last_modified_at,
         to_timestamp("Registration_date", 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') as registration_date,
         "Registration_location" as registration_location,
-        _airbyte_raw_id,
-        _airbyte_extracted_at,
-        _airbyte_meta,
+        json_extract_path_text(audit::json, 'Created by') as username,
         CASE 
             WHEN to_timestamp(last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') = to_timestamp(json_extract_path_text(audit::json, 'Created at'), 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') THEN 'C'
             WHEN to_timestamp(last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= to_timestamp(json_extract_path_text(audit::json, 'Created at'), 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') THEN 'U'
@@ -33,6 +31,7 @@ WITH source AS (
 SELECT
     id,
     audit,
+    username,
     groups,
     voided,
     location,
@@ -46,8 +45,5 @@ SELECT
     last_modified_at,
     registration_date,
     registration_location,
-    _airbyte_raw_id,
-    _airbyte_extracted_at,
-    _airbyte_meta,
     op_type
 FROM source

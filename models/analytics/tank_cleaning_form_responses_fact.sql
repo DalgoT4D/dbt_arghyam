@@ -5,6 +5,7 @@ WITH
     tank_cleaning_raw_data AS (
         SELECT 
             enc.subject_type
+            , enc.username
             , sub.location
             , enc.observations
             , enc.audit
@@ -25,6 +26,7 @@ WITH
     SELECT
         location_id
         , activity_id
+        , username
         , json_extract_path_text(raw_data.observations::json, 'Date of tank cleaning') AS tank_cleaning_date
         , json_extract_path_text(raw_data.observations::json, 'Take a picture of the tank cleaning process') AS photo_tank_cleaning_process
         , json_extract_path_text(raw_data.observations::json, 'Take a picture of the proceedings of tank cleaning with WIMC members signature') AS photo_wimc_sign
@@ -37,16 +39,17 @@ WITH
 
 SELECT 
     tank_cleaning_date::timestamp::date
-    , location_id
-    , activity_id
-    , ARRAY [
-             photo_tank_cleaning_process
-             , photo_wimc_sign
-             , photo_written_notification
-         ] AS photos_tank_cleaning 
+    , username
+    -- , location_id
+    -- , activity_id
+    -- , ARRAY [
+    --          photo_tank_cleaning_process
+    --          , photo_wimc_sign
+    --          , photo_written_notification
+    --      ] AS photos_tank_cleaning 
     , remarks
-    , created_at_timestamp
-    , last_modified_timestamp
-    , CURRENT_TIMESTAMP AS create_db_timestamp
+    -- , created_at_timestamp
+    -- , last_modified_timestamp
+    -- , CURRENT_TIMESTAMP AS create_db_timestamp
     , '{{ invocation_id }}' AS create_audit_id
 FROM extract_fields
