@@ -6,67 +6,220 @@
 }}
 
 WITH 
-    wq_raw_data AS (
-        SELECT 
-            enc.id AS encounter_id
-            , enc.subject_type
-            , enc.username
-            , sub.location
-            , enc.observations
-            , enc.audit
-            , brd.location_id -- same as SK of location_dim table
-            , act.activity_id AS activity_id
-        FROM {{ ref ('encounters_cdc') }} as enc
-        INNER JOIN {{ ref ('subjects_cdc') }} as sub ON enc.subject_id = sub.id
-        INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
-        INNER JOIN {{ ref ('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
-        WHERE enc.encounter_type = 'Water Quality testing'
-        AND enc.observations != '{}'
-        -- {% if is_incremental() %}
-        -- AND TO_TIMESTAMP(json_extract_path_text(raw_data.observations::json, 'Date of tank cleaning'), 
-        --                 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= (SELECT MAX(tank_cleaning_date) FROM {{ this }})
-        -- {% endif %}
-)
-, extract_fields AS (
+wq_raw_data AS (
+    SELECT 
+        enc.id AS encounter_id,
+        enc.subject_type,
+        enc.username,
+        sub.location,
+        enc.observations,
+        enc.audit,
+        brd.ward_name,
+        brd.block_name,
+        brd.district_name,
+        brd.gp_name,
+        act.activity_id AS activity_id
+    FROM {{ ref ('encounters_cdc') }} AS enc
+    INNER JOIN {{ ref ('subjects_cdc') }} AS sub ON enc.subject_id = sub.id
+    INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
+    INNER JOIN {{ ref ('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
+    WHERE enc.encounter_type = 'Water Quality testing'
+    AND enc.observations != '{}'
+), 
+extract_fields AS (
     SELECT
         encounter_id,
-        location_id,
         activity_id,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
         username,
         CAST(CAST(observations AS JSONB) ->> 'Date of sample collection' AS DATE) AS date_sample_collection,
-		CAST(CAST(observations AS JSONB) ->> 'Date of testing' AS DATE) AS date_testing,
-		CAST(CAST(observations AS JSONB) ->> 'PH' AS FLOAT) AS ph_count,
-		CAST(CAST(observations AS JSONB) ->> 'Chloride' AS FLOAT) AS chloride_count,
-		CAST(CAST(observations AS JSONB) ->> 'Total Hardness' AS FLOAT) AS hardness,
-		CAST(CAST(observations AS JSONB) ->> 'Total Alkalnity' AS FLOAT) AS total_alkalinity,
-		CAST(CAST(observations AS JSONB) ->> 'Bacteriological Contamination' AS VARCHAR) AS bacterial_contamination,
-		CAST(CAST(observations AS JSONB) ->> 'Nitrate' AS FLOAT) AS nitrate_count,
-		CAST(CAST(observations AS JSONB) ->> 'Iron' AS FLOAT) AS iron_count,
-		CAST(CAST(observations AS JSONB) ->> 'Arsenic' AS FLOAT) AS arsenic_count,
-		CAST(CAST(observations AS JSONB) ->> 'Fluoride' AS FLOAT) AS fluoride_count,
-        json_extract_path_text(raw_data.audit::json, 'Created at') AS created_at_timestamp,
-        json_extract_path_text(raw_data.audit::json, 'Last modified at') AS last_modified_timestamp
+        CAST(CAST(observations AS JSONB) ->> 'Date of testing' AS DATE) AS date_testing,
+        CAST(CAST(observations AS JSONB) ->> 'PH' AS FLOAT) AS ph_count,
+        CAST(CAST(observations AS JSONB) ->> 'Chloride' AS FLOAT) AS chloride_count,
+        CAST(CAST(observations AS JSONB) ->> 'Total Hardness' AS FLOAT) AS hardness,
+        CAST(CAST(observations AS JSONB) ->> 'Total Alkalnity' AS FLOAT) AS total_alkalinity,
+        CAST(CAST(observations AS JSONB) ->> 'Bacteriological Contamination' AS VARCHAR) AS bacterial_contamination,
+        CAST(CAST(observations AS JSONB) ->> 'Nitrate' AS FLOAT) AS nitrate_count,
+        CAST(CAST(observations AS JSONB) ->> 'Iron' AS FLOAT) AS iron_count,
+        CAST(CAST(observations AS JSONB) ->> 'Arsenic' AS FLOAT) AS arsenic_count,
+        CAST(CAST(observations AS JSONB) ->> 'Fluoride' AS FLOAT) AS fluoride_count,
+        CAST(json_extract_path_text(audit::json, 'Created at') AS TIMESTAMP) AS created_at_timestamp,
+        CAST(json_extract_path_text(audit::json, 'Last modified at') AS TIMESTAMP) AS last_modified_timestamp
     FROM wq_raw_data AS raw_data
+), 
+parameter_values AS (
+    SELECT
+        encounter_id,
+        date_sample_collection,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
+        activity_id,
+        username,
+        created_at_timestamp,
+        date_testing,
+        'PH' AS parameter,
+        ph_count AS last_test_done_value,
+        '6.5-8.5' AS permissible_limits,
+        '{{ invocation_id }}' AS create_audit_id
+    FROM extract_fields
+    UNION ALL
+    SELECT
+        encounter_id,
+        date_sample_collection,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
+        activity_id,
+        username,
+        created_at_timestamp,
+        date_testing,
+        'Total Hardness' AS parameter,
+        hardness AS last_test_done_value,
+        '600' AS permissible_limits,
+        '{{ invocation_id }}' AS create_audit_id
+    FROM extract_fields
+    UNION ALL
+    SELECT
+        encounter_id,
+        date_sample_collection,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
+        activity_id,
+        username,
+        created_at_timestamp,
+        date_testing,
+        'Total Alkalnity' AS parameter,
+        total_alkalinity AS last_test_done_value,
+        '600' AS permissible_limits,
+        '{{ invocation_id }}' AS create_audit_id
+    FROM extract_fields
+    UNION ALL
+    SELECT
+        encounter_id,
+        date_sample_collection,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
+        activity_id,
+        username,
+        created_at_timestamp,
+        date_testing,
+        'Chloride' AS parameter,
+        chloride_count AS last_test_done_value,
+        '1000' AS permissible_limits,
+        '{{ invocation_id }}' AS create_audit_id
+    FROM extract_fields
+    UNION ALL
+    SELECT
+        encounter_id,
+        date_sample_collection,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
+        activity_id,
+        username,
+        created_at_timestamp,
+        date_testing,
+        'Nitrate' AS parameter,
+        nitrate_count AS last_test_done_value,
+        '45' AS permissible_limits,
+        '{{ invocation_id }}' AS create_audit_id
+    FROM extract_fields
+    UNION ALL
+    SELECT
+        encounter_id,
+        date_sample_collection,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
+        activity_id,
+        username,
+        created_at_timestamp,
+        date_testing,
+        'Arsenic' AS parameter,
+        arsenic_count AS last_test_done_value,
+        '0.01' AS permissible_limits,
+        '{{ invocation_id }}' AS create_audit_id
+    FROM extract_fields
+    UNION ALL
+    SELECT
+        encounter_id,
+        date_sample_collection,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
+        activity_id,
+        username,
+        created_at_timestamp,
+        date_testing,
+        'Fluoride' AS parameter,
+        fluoride_count AS last_test_done_value,
+        '1.5' AS permissible_limits,
+        '{{ invocation_id }}' AS create_audit_id
+    FROM extract_fields
+    UNION ALL
+    SELECT
+        encounter_id,
+        date_sample_collection,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
+        activity_id,
+        username,
+        created_at_timestamp,
+        date_testing,
+        'Iron' AS parameter,
+        iron_count AS last_test_done_value,
+        '1' AS permissible_limits,
+        '{{ invocation_id }}' AS create_audit_id
+    FROM extract_fields
+    UNION ALL
+    SELECT
+        encounter_id,
+        date_sample_collection,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
+        activity_id,
+        username,
+        created_at_timestamp,
+        date_testing,
+        'Bacteriological Contamination' AS parameter,
+        CASE 
+            WHEN bacterial_contamination = 'Yes' THEN 1
+            ELSE 0
+        END AS last_test_done_value,
+        'Absent (shall not be detectable in  any 100 ml  of sample)' AS permissible_limits,
+        '{{ invocation_id }}' AS create_audit_id
+    FROM extract_fields
 )
 
 SELECT 
-    -- encounter_id
-    -- , location_id
-    -- , activity_id
-    date_sample_collection
-    , username
-    , date_testing
-    , ph_count
-    , chloride_count
-    , hardness
-    , total_alkalinity
-    , bacterial_contamination
-    , nitrate_count
-    , iron_count
-    , arsenic_count
-    , fluoride_count
-    -- , created_at_timestamp
-    -- , last_modified_timestamp
-    -- , CURRENT_TIMESTAMP AS create_db_timestamp
-    , '{{ invocation_id }}' AS create_audit_id
-FROM extract_fields
+    encounter_id,
+    ward_name,
+    block_name,
+    district_name,
+    gp_name,
+    activity_id,
+    username,
+    date_testing,
+    parameter,
+    last_test_done_value,
+    permissible_limits,
+    created_at_timestamp,
+    create_audit_id
+FROM parameter_values
