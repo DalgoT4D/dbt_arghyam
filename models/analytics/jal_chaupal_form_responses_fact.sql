@@ -14,7 +14,10 @@ WITH
             sub.location,
             enc.observations,
             enc.audit,
-            brd.location_id, -- same as SK of location_dim table,
+            brd.ward_name,
+            brd.block_name,
+            brd.district_name,
+            brd.gp_name,
             act.activity_id AS activity_id
         FROM {{ ref ('encounters_cdc') }} as enc
         INNER JOIN {{ ref ('subjects_cdc') }} as sub ON enc.subject_id = sub.id
@@ -30,9 +33,12 @@ WITH
 extract_fields AS (
     SELECT
 	    encounter_id,
-        location_id,
         activity_id,
         username,
+        ward_name,
+        block_name,
+        district_name,
+        gp_name,
         json_extract_path_text(raw_data.observations::json, 'Date of jal chaupal') AS meeting_date,
         json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') AS num_participants,
         json_extract_path_text(raw_data.observations::json, 'How many women participants attended the meeting') AS num_women_participants,
@@ -46,16 +52,18 @@ extract_fields AS (
 )
 
 SELECT 
-	-- encounter_id,
+	encounter_id,
     meeting_date::timestamp::date,
     username,
-    -- location_id,
-    -- activity_id,
+    ward_name,
+    block_name,
+    district_name,
+    gp_name,
     num_participants,
     CAST(num_women_participants AS INT) AS num_women_participants,
     remarks,
     ARRAY [photo_proceedings, photo_max_attendance] AS photos_jal_chaupal,
-    -- created_at_timestamp,
+    created_at_timestamp,
     -- last_modified_timestamp,
     -- CURRENT_TIMESTAMP AS create_db_timestamp,
     '{{ invocation_id }}' AS create_audit_id

@@ -48,7 +48,11 @@ SELECT
 	exd.num_women_participants,
 	exd.remarks,
 	exd.photos,
-	-- created_at_timestamp,
+	brd.ward_name,
+	brd.block_name,
+	brd.district_name,
+	brd.gp_name,
+	created_at_timestamp::timestamp,
     -- last_modified_timestamp,
 	-- CURRENT_TIMESTAMP AS create_db_timestamp,
     '{{ invocation_id }}' AS create_audit_id
