@@ -81,7 +81,7 @@ parameter_values AS (
         date_testing,
         'Total Hardness' AS parameter,
         hardness AS last_test_done_value,
-        '600' AS permissible_limits,
+        '< 600' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
     FROM extract_fields
     UNION ALL
@@ -98,7 +98,7 @@ parameter_values AS (
         date_testing,
         'Total Alkalnity' AS parameter,
         total_alkalinity AS last_test_done_value,
-        '600' AS permissible_limits,
+        '< 600' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
     FROM extract_fields
     UNION ALL
@@ -115,7 +115,7 @@ parameter_values AS (
         date_testing,
         'Chloride' AS parameter,
         chloride_count AS last_test_done_value,
-        '1000' AS permissible_limits,
+        '< 1000' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
     FROM extract_fields
     UNION ALL
@@ -132,7 +132,7 @@ parameter_values AS (
         date_testing,
         'Nitrate' AS parameter,
         nitrate_count AS last_test_done_value,
-        '45' AS permissible_limits,
+        '< 45' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
     FROM extract_fields
     UNION ALL
@@ -149,7 +149,7 @@ parameter_values AS (
         date_testing,
         'Arsenic' AS parameter,
         arsenic_count AS last_test_done_value,
-        '0.01' AS permissible_limits,
+        '< 0.01' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
     FROM extract_fields
     UNION ALL
@@ -166,7 +166,7 @@ parameter_values AS (
         date_testing,
         'Fluoride' AS parameter,
         fluoride_count AS last_test_done_value,
-        '1.5' AS permissible_limits,
+        '< 1.5' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
     FROM extract_fields
     UNION ALL
@@ -183,7 +183,7 @@ parameter_values AS (
         date_testing,
         'Iron' AS parameter,
         iron_count AS last_test_done_value,
-        '1' AS permissible_limits,
+        '< 1' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
     FROM extract_fields
     UNION ALL
@@ -203,7 +203,7 @@ parameter_values AS (
             WHEN bacterial_contamination = 'Yes' THEN 1
             ELSE 0
         END AS last_test_done_value,
-        'Absent (shall not be detectable in  any 100 ml  of sample)' AS permissible_limits,
+        'Absent' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
     FROM extract_fields
 )
