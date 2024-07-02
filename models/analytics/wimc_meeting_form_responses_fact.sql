@@ -63,4 +63,3 @@ LEFT JOIN {{ ref ('subjects_cdc') }} as sub ON exd.subject_id = sub.id
 INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
 WHERE encounter_type = 'WIMC meeting'
 
-
