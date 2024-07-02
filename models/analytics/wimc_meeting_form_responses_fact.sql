@@ -43,6 +43,8 @@ SELECT
 	-- activity.activity_id, -- FK to activity_dim
 	-- brd.location_id, -- same as SK of location_dim table (FK)
 	exd.meeting_date,
+	EXTRACT(MONTH FROM meeting_date::timestamp) AS reporting_month,
+    EXTRACT(YEAR FROM meeting_date::timestamp) AS reporting_year,
 	exd.username,
 	exd.num_members_attended,
 	exd.num_women_participants,

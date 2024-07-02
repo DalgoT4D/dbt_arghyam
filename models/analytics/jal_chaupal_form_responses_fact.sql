@@ -1,4 +1,4 @@
-{{
+{{ 
     config(
         materialized='table',
         schema='analytics'
@@ -25,10 +25,6 @@ jal_chaupal_raw_data AS (
     INNER JOIN {{ ref ('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
     WHERE enc.encounter_type = 'Jal Chaupal'
     AND enc.observations != '{}'
-    -- {% if is_incremental() %}
-    -- AND TO_TIMESTAMP(json_extract_path_text(raw_data.observations::json, 'Date of tank cleaning'), 
-    --                 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= (SELECT MAX(meeting_date) FROM {{ this }})
-    -- {% endif %}
 ), 
 extract_fields AS (
     SELECT
@@ -61,6 +57,8 @@ extract_fields AS (
 SELECT 
     encounter_id,
     meeting_date::timestamp::date,
+    EXTRACT(MONTH FROM meeting_date::timestamp) AS reporting_month,
+    EXTRACT(YEAR FROM meeting_date::timestamp) AS reporting_year,
     CASE 
         WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 1 THEN 'Jan'
         WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 2 THEN 'Feb'
