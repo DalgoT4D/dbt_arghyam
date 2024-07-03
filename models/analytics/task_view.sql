@@ -4,29 +4,48 @@
 
 WITH source AS (
     SELECT
-        to_char(date_trunc('month', to_timestamp("Encounter_date_time", 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ')), 'Mon') AS encounter_month,
-        "Encounter_type" as encounter_type
-    FROM {{ source('source_arghyam_surveys', 'encounters') }}
-    WHERE "Encounter_type" IN ('WIMC meeting', 'Jal Chaupal', 'Log book record')
-),
-
-flagged_encounters AS (
-    SELECT DISTINCT
-        encounter_month,
-        encounter_type,
-        'Yes' AS present
-    FROM source
+        enc.encounter_type,
+        enc.username,
+        COALESCE(
+            CAST(CAST(enc.observations AS JSONB) ->> 'Date of testing' AS DATE),
+            CAST(CAST(enc.observations AS JSONB) ->> 'Date of WIMC meeting' AS DATE),
+            CAST(json_extract_path_text(enc.observations::json, 'Date of jal chaupal') AS DATE),
+            CAST(json_extract_path_text(enc.observations::json, 'Date of tank cleaning') AS DATE)
+        ) AS meeting_date
+    FROM {{ ref('encounters_cdc') }} as enc
+    WHERE
+        COALESCE(
+            CAST(CAST(enc.observations AS JSONB) ->> 'Date of testing' AS DATE),
+            CAST(CAST(enc.observations AS JSONB) ->> 'Date of WIMC meeting' AS DATE),
+            CAST(json_extract_path_text(enc.observations::json, 'Date of jal chaupal') AS DATE),
+            CAST(json_extract_path_text(enc.observations::json, 'Date of tank cleaning') AS DATE)
+        ) IS NOT NULL
 ),
 
 pivoted AS (
     SELECT
-        encounter_month,
-        MAX(CASE WHEN encounter_type = 'WIMC meeting' THEN present ELSE 'No' END) AS "WIMC Meeting",
-        MAX(CASE WHEN encounter_type = 'Jal Chaupal' THEN present ELSE 'No' END) AS "Jal Chaupal",
-        MAX(CASE WHEN encounter_type = 'Log book record' THEN present ELSE 'No' END) AS "Log book record"
-    FROM flagged_encounters
-    GROUP BY encounter_month
-    ORDER BY encounter_month
+        meeting_date::date,
+        EXTRACT(YEAR FROM meeting_date::timestamp) AS reporting_year,
+        CASE
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 1 THEN 'Jan'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 2 THEN 'Feb'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 3 THEN 'Mar'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 4 THEN 'Apr'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 5 THEN 'May'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 6 THEN 'Jun'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 7 THEN 'Jul'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 8 THEN 'Aug'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 9 THEN 'Sep'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 10 THEN 'Oct'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 11 THEN 'Nov'
+            WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 12 THEN 'Dec'
+        END as reporting_month,
+        username,
+        MAX(CASE WHEN encounter_type = 'WIMC meeting' THEN 'Yes' ELSE 'No' END) AS "WIMC Meeting",
+        MAX(CASE WHEN encounter_type = 'Jal Chaupal' THEN 'Yes' ELSE 'No' END) AS "Jal Chaupal",
+        MAX(CASE WHEN encounter_type = 'Log book record' THEN 'Yes' ELSE 'No' END) AS "Log book record"
+    FROM source
+    GROUP BY meeting_date, username
 )
 
 SELECT * FROM pivoted
