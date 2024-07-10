@@ -6,20 +6,8 @@ WITH source AS (
     SELECT
         enc.encounter_type,
         enc.username,
-        COALESCE(
-            CAST(CAST(enc.observations AS JSONB) ->> 'Date of testing' AS DATE),
-            CAST(CAST(enc.observations AS JSONB) ->> 'Date of WIMC meeting' AS DATE),
-            CAST(json_extract_path_text(enc.observations::json, 'Date of jal chaupal') AS DATE),
-            CAST(json_extract_path_text(enc.observations::json, 'Date of tank cleaning') AS DATE)
-        ) AS meeting_date
+        meeting_date
     FROM {{ ref('encounters_cdc') }} as enc
-    WHERE
-        COALESCE(
-            CAST(CAST(enc.observations AS JSONB) ->> 'Date of testing' AS DATE),
-            CAST(CAST(enc.observations AS JSONB) ->> 'Date of WIMC meeting' AS DATE),
-            CAST(json_extract_path_text(enc.observations::json, 'Date of jal chaupal') AS DATE),
-            CAST(json_extract_path_text(enc.observations::json, 'Date of tank cleaning') AS DATE)
-        ) IS NOT NULL
 ),
 
 pivoted AS (

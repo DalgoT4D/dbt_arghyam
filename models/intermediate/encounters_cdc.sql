@@ -26,7 +26,38 @@ WITH source AS (
             WHEN to_timestamp(last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') = to_timestamp(json_extract_path_text(audit::json, 'Created at'), 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') THEN 'C'
             WHEN to_timestamp(last_modified_at, 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') >= to_timestamp(json_extract_path_text(audit::json, 'Created at'), 'YYYY-MM-DD"T"HH24:MI:SS.US"T"TZ') THEN 'U'
             ELSE 'NA'
-        END AS op_type
+        END AS op_type,
+        CASE 
+            WHEN observations = '{}' THEN NULL
+            WHEN "Encounter_type" = 'WIMC meeting' THEN CAST(CAST(observations AS JSONB) ->> 'Date of WIMC meeting' AS DATE)
+            WHEN "Encounter_type" = 'Jal Chaupal' THEN CAST(CAST(observations AS JSONB) ->> 'Date of jal chaupal' AS DATE)
+            WHEN "Encounter_type" = 'Water Quality testing' THEN CAST(CAST(observations AS JSONB) ->> 'Date of testing' AS DATE)
+            WHEN "Encounter_type" = 'Tank Cleaning' THEN CAST(CAST(observations AS JSONB) ->> 'Date of tank cleaning' AS DATE)
+            WHEN "Encounter_type" = 'Log book record' THEN 
+                TO_DATE(
+                    CONCAT(
+                        json_extract_path_text(observations::json, 'Reporting Year'), '-',
+                        CASE json_extract_path_text(observations::json, 'Reporting month')
+                            WHEN 'Jan' THEN '01'
+                            WHEN 'Feb' THEN '02'
+                            WHEN 'Mar' THEN '03'
+                            WHEN 'Apr' THEN '04'
+                            WHEN 'May' THEN '05'
+                            WHEN 'Jun' THEN '06'
+                            WHEN 'Jul' THEN '07'
+                            WHEN 'Aug' THEN '08'
+                            WHEN 'Sep' THEN '09'
+                            WHEN 'Oct' THEN '10'
+                            WHEN 'Nov' THEN '11'
+                            WHEN 'Dec' THEN '12'
+                            ELSE '00'
+                        END,
+                        '-01'
+                    ),
+                    'YYYY-MM-DD'
+                )
+            ELSE NULL
+        END AS meeting_date
     FROM {{ source('source_arghyam_surveys', 'encounters') }}
 )
 
@@ -49,5 +80,6 @@ SELECT
     encounter_date_time,
     subject_external_id,
     earliest_scheduled_date,
-    op_type
+    op_type,
+    meeting_date
 FROM source
