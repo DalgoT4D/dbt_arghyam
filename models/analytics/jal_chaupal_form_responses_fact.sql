@@ -11,6 +11,7 @@ jal_chaupal_raw_data AS (
         enc.id AS encounter_id,
         enc.subject_type,
         enc.username,
+        enc.meeting_date,
         sub.location,
         enc.observations,
         enc.audit,
@@ -35,7 +36,7 @@ extract_fields AS (
         block_name,
         district_name,
         gp_name,
-        json_extract_path_text(raw_data.observations::json, 'Date of jal chaupal') AS meeting_date,
+        meeting_date,
         CASE
             WHEN json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') = '25 - 40' THEN 40
             WHEN json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') = 'More than 80' THEN 80
@@ -56,7 +57,7 @@ extract_fields AS (
 
 SELECT 
     encounter_id,
-    meeting_date::timestamp::date,
+    meeting_date,
     EXTRACT(MONTH FROM meeting_date::timestamp) AS reporting_month,
     EXTRACT(YEAR FROM meeting_date::timestamp) AS reporting_year,
     CASE 

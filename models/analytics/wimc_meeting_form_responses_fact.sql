@@ -10,7 +10,7 @@ WITH extract_data AS (
 		subject_id,
 		encounter_type,
 		username,
-		CAST(CAST(observations AS JSONB) ->> 'Date of WIMC meeting' AS DATE) AS meeting_date,
+		meeting_date,
 		CAST(CAST(observations AS JSONB) ->> 'How many members attended the meeting' AS INT) AS num_members_attended,
 		CAST(CAST(observations AS JSONB) ->> 'How many women participants attended the meeting' AS INT) AS num_women_participants,
 		CAST(CAST(observations AS JSONB) ->> 'Remarks' AS VARCHAR) AS remarks,

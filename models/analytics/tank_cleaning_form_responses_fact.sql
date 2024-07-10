@@ -14,7 +14,8 @@ WITH
             , brd.ward_name,
             brd.block_name,
             brd.district_name,
-            brd.gp_name
+            brd.gp_name,
+            enc.meeting_date
         FROM {{ ref ('encounters_cdc') }} as enc
         INNER JOIN {{ ref ('subjects_cdc') }} as sub ON enc.subject_id = sub.id
         INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
@@ -25,13 +26,13 @@ WITH
 , extract_fields AS (
     SELECT
         encounter_id,
+        meeting_date,
         activity_id,
         ward_name,
         block_name,
         district_name,
         gp_name
         , username
-        , json_extract_path_text(raw_data.observations::json, 'Date of tank cleaning') AS tank_cleaning_date
         , json_extract_path_text(raw_data.observations::json, 'Remarks') AS remarks
         , json_extract_path_text(raw_data.audit::json, 'Created at') AS created_at_timestamp
         , json_extract_path_text(raw_data.audit::json, 'Last modified at') AS last_modified_timestamp
@@ -40,7 +41,7 @@ WITH
 
 SELECT 
     encounter_id,
-    tank_cleaning_date::timestamp::date,
+    meeting_date,
     ward_name,
     block_name,
     district_name,

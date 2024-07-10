@@ -11,6 +11,7 @@ log_book_raw_data AS (
         enc.id AS encounter_id,
         enc.subject_type,
         enc.username,
+        enc.meeting_date,
         sub.location,
         enc.observations,
         enc.audit,
@@ -31,6 +32,7 @@ extract_fields AS (
         encounter_id,
         ward_name,
         block_name,
+        meeting_date,
         district_name,
         gp_name,
         activity_id,
@@ -58,6 +60,7 @@ calculate_days AS (
 ),
 final_calculation AS (
     SELECT
+        meeting_date,
         encounter_id,
         ward_name,
         block_name,
@@ -82,6 +85,7 @@ final_calculation AS (
 )
 
 SELECT 
+    meeting_date,
     reporting_year,
     reporting_month,
     ward_name,
