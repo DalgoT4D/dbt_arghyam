@@ -39,7 +39,7 @@ WITH extract_data AS (
 )
 
 SELECT
-	-- exd.id AS encounter_id, -- id of encounters_cdc
+	exd.id AS encounter_id, -- id of encounters_cdc
 	-- activity.activity_id, -- FK to activity_dim
 	-- brd.location_id, -- same as SK of location_dim table (FK)
 	exd.meeting_date,
