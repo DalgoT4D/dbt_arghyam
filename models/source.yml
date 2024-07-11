@@ -5,38 +5,290 @@ sources:
     schema: staging
     tables:
       - name: encounters
-        identifier: _airbyte_raw_encounters
+        identifier: encounters
         description: A form used to track and report issues on a daily basis.
       - name: subjects
-        identifier: _airbyte_raw_subjects
+        identifier: subjects
         description: A form used to track and report issues on a daily basis.
 
-  - name: silver
-    schema: intermediate
-    tables:
-    - name: encounters_normalized
-      description: Encounters extracted from staging layer. Semi-structured format.
-    - name: subjects_normalized
-      description: Subjects extracted from staging layer. Semi-structured format.
+  # - name: silver
+  #   schema: intermediate
+  #   tables:
+  #     - name: encounters_normalized
+  #       description: Encounters extracted from staging layer. Semi-structured format.
+  #     - name: subjects_normalized
+  #       description: Subjects extracted from staging layer. Semi-structured format.
 
-  - name: analytics
-    schema: test
-    tables:
-    - name: location_dim
-      description: The location dimension table (Type 1 SCD)
-    - name: activity_dim
-      description: The acitivity dimension table (Type 1 SCD)
-    - name: meeting_form_responses_fact
-      description: Fact table to track meeting observations for Jal Jopal and WIMC meeting activities. 
-    - name: tank_cleaning_form_responses_fact
-      description: Fact table to track the observations made while performing tank cleaning activity.
-    - name: water_quality_testing_form_responses_fact
-      description: Fact table to track the observations made while performing the water quality testing activity.
+  # # - name: analytics
+  #   schema: test
+  #   tables:
+  #   - name: location_dim
+  #     description: The location dimension table (Type 1 SCD)
+  #   - name: activity_dim
+  #     description: The acitivity dimension table (Type 1 SCD)
+  #   - name: meeting_form_responses_fact
+  #     description: Fact table to track meeting observations for Jal Jopal and WIMC meeting activities.
+  #   - name: tank_cleaning_form_responses_fact
+  #     description: Fact table to track the observations made while performing tank cleaning activity.
+  #   - name: water_quality_testing_form_responses_fact
+  #     description: Fact table to track the observations made while performing the water quality testing activity.
 
-  - name: cdc_models
-    schema: test
-    tables:
-    - name: subjects_cdc
-      description: Table built on top of subjects_normalized to include NK and op_type
-    - name: encounters_cdc
-      description: Table built on top of encounters_normalized to include NK and op_type
+  # - name: cdc_models
+  #   schema: test
+  #   tables:
+  #   - name: subjects_cdc
+  #     description: Table built on top of subjects_normalized to include NK and op_type
+  #   - name: encounters_cdc
+  #     description: Table built on top of encounters_normalized to include NK and op_type
+
+models:
+  - name: jal_chaupal_form_responses_fact
+    description: "Jal Chaupal Form Responses Fact Table"
+    columns:
+      - name: encounter_id
+        description: "Unique identifier for the Jal Chaupal"
+        tests:
+          - not_null
+      - name: meeting_date
+        description: "Date of the Jal Chaupal meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: reporting_year
+        description: "Year of the Jal Chaupal meeting"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who submitted the Jal Chaupal form"
+        tests:
+          - not_null
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: num_participants
+        description: "Number of participants in the Jal Chaupal meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: num_women_participants
+        description: "Number of women participants in the Jal Chaupal meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+
+  - name: log_book_form_responses_fact
+    description: "Log Book Form Responses Fact Table"
+    columns:
+      - name: meeting_date
+        description: "Date of the log book meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: reporting_year
+        description: "Year of the log book meeting"
+        tests:
+          - not_null
+      - name: reporting_month
+        description: "Month of the log book meeting"
+        tests:
+          - not_null
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who submitted the log book form"
+        tests:
+          - not_null
+      - name: days_no_water
+        description: "Number of days without water"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: total_days_in_month
+        description: "Total number of days in the month"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: days_with_water
+        description: "Number of days with water"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: met_27_days_goal
+        description: "Whether the 27 days goal was met (true/false)"
+        tests:
+          - not_null
+
+  - name: tank_cleaning_form_responses_fact
+    description: "Tank Cleaning Form Responses Fact Table"
+    columns:
+      - name: encounter_id
+        description: "Unique identifier for the tank cleaning encounter"
+        tests:
+          - not_null
+      - name: meeting_date
+        description: "Date of the tank cleaning meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who submitted the tank cleaning form"
+        tests:
+          - not_null
+      - name: created_at_timestamp
+        description: "Timestamp when the form was created"
+        tests:
+          - not_null
+
+  - name: water_quality_testing_form_responses_fact
+    description: "Water Quality Testing Form Responses Fact Table"
+    columns:
+      - name: encounter_id
+        description: "Unique identifier for the water quality testing encounter"
+        tests:
+          - not_null
+      - name: meeting_date
+        description: "Date of the water quality testing meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: activity_id
+        description: "Identifier for the water quality testing activity"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who submitted the water quality testing form"
+        tests:
+          - not_null
+      - name: parameter
+        description: "Parameter being tested in the water quality testing"
+        tests:
+          - not_null
+      - name: created_at_timestamp
+        description: "Timestamp when the form was created"
+        tests:
+          - not_null
+
+  - name: wimc_meeting_form_responses_fact
+    description: "WIMC Meeting Form Responses Fact Table"
+    columns:
+      - name: encounter_id
+        description: "Unique identifier for the WIMC meeting encounter"
+        tests:
+          - not_null
+      - name: meeting_date
+        description: "Date of the WIMC meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: reporting_month
+        description: "Month of the WIMC meeting"
+        tests:
+          - not_null
+      - name: reporting_year
+        description: "Year of the WIMC meeting"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who conducted the WIMC meeting"
+        tests:
+          - not_null
+      - name: num_members_attended
+        description: "Number of members who attended the WIMC meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: num_women_participants
+        description: "Number of women participants in the WIMC meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: created_at_timestamp
+        description: "Timestamp when the form was created"
+        tests:
+          - not_null

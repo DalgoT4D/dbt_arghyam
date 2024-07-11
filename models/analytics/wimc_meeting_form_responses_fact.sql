@@ -1,5 +1,6 @@
 {{ config(
-		materialized='table'
+		materialized='table',
+		schema='analytics'
 		) 
 }}
 
@@ -8,7 +9,8 @@ WITH extract_data AS (
 		id, -- encounter_id
 		subject_id,
 		encounter_type,
-		CAST(CAST(observations AS JSONB) ->> 'Date of WIMC meeting' AS DATE) AS meeting_date,
+		username,
+		meeting_date,
 		CAST(CAST(observations AS JSONB) ->> 'How many members attended the meeting' AS INT) AS num_members_attended,
 		CAST(CAST(observations AS JSONB) ->> 'How many women participants attended the meeting' AS INT) AS num_women_participants,
 		CAST(CAST(observations AS JSONB) ->> 'Remarks' AS VARCHAR) AS remarks,
@@ -38,16 +40,23 @@ WITH extract_data AS (
 
 SELECT
 	exd.id AS encounter_id, -- id of encounters_cdc
-	activity.activity_id, -- FK to activity_dim
-	brd.location_id, -- same as SK of location_dim table (FK)
+	-- activity.activity_id, -- FK to activity_dim
+	-- brd.location_id, -- same as SK of location_dim table (FK)
 	exd.meeting_date,
+	EXTRACT(MONTH FROM meeting_date::timestamp) AS reporting_month,
+    EXTRACT(YEAR FROM meeting_date::timestamp) AS reporting_year,
+	exd.username,
 	exd.num_members_attended,
 	exd.num_women_participants,
 	exd.remarks,
 	exd.photos,
-	created_at_timestamp,
-    last_modified_timestamp,
-	CURRENT_TIMESTAMP AS create_db_timestamp,
+	brd.ward_name,
+	brd.block_name,
+	brd.district_name,
+	brd.gp_name,
+	created_at_timestamp::timestamp,
+    -- last_modified_timestamp,
+	-- CURRENT_TIMESTAMP AS create_db_timestamp,
     '{{ invocation_id }}' AS create_audit_id
 FROM
 	extract_data AS exd
@@ -55,5 +64,4 @@ LEFT JOIN {{ ref('activity_dim') }} as activity ON exd.encounter_type = activity
 LEFT JOIN {{ ref ('subjects_cdc') }} as sub ON exd.subject_id = sub.id
 INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
 WHERE encounter_type = 'WIMC meeting'
-
 
