@@ -25,5 +25,5 @@ select
 	to_timestamp(
 		ROUND(fromperiod::numeric * 0.001)
 	) AT TIME ZONE 'UTC' AS fromperiod, 
-  amount
+  amount::numeric as amount
 from flattened

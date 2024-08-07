@@ -22,7 +22,6 @@ select
 		ROUND(
 			("paymentdetail"->'receiptDate')::numeric * 0.001
 		)
-	) AT TIME ZONE 'UTC'  as receiptdate,
-	"paymentdetail"->>'id' as paymentdetailid
+	) AT TIME ZONE 'UTC'  as receiptdate
 	
 from payment_details

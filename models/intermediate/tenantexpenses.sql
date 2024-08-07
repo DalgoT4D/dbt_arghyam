@@ -1,13 +1,17 @@
+{{ config(
+    materialized='table'
+) }}
+
 select 
   "data"->>'OMMisc' as ommisc,
-  "data"->>'salary' as salary,
-  "data"->>'billsPaid' as billspaid,
-  "data"->>'amountPaid' as amountpaid,
-  "data"->>'totalBills' as totalbills,
-  "data"->>'amountUnpaid' as amountunpaid,
-  "data"->>'pendingBills' as pendingbills,
-  "data"->>'electricityBill' as electricitybill,
-  "data"->>'totalExpenditure' as totalexpenditure
+  ("data"->>'salary')::numeric as salary,
+  ("data"->>'billsPaid')::numeric as billspaid,
+  ("data"->>'amountPaid')::numeric as amountpaid,
+  ("data"->>'totalBills')::numeric as totalbills,
+  ("data"->>'amountUnpaid')::numeric as amountunpaid,
+  ("data"->>'pendingBills')::numeric as pendingbills,
+  ("data"->>'electricityBill')::numeric as electricitybill,
+  ("data"->>'totalExpenditure')::numeric as totalexpenditure
   
 from {{ source('source_mgramseva', 'tenant_expenses') }}
 

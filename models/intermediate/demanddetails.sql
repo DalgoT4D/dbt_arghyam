@@ -15,5 +15,5 @@ SELECT
   tenantid, 
   demandid,
   demanddetailid, 
-  amount
+  amount::numeric as amount
 FROM flattened
