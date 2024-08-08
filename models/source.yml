@@ -11,6 +11,22 @@ sources:
         identifier: subjects
         description: A form used to track and report issues on a daily basis.
 
+  - name: source_mgramseva
+    schema: staging
+    tables:
+      - name: bills
+        identifier: mgramseva_bills
+        description: Bills of the consumers.        
+      - name: demands
+        identifier: mgramseva_demands
+        description: Demands of the consumers.
+      - name: payments
+        identifier: mgramseva_payments
+        description: Payments of the consumers.
+      - name: tenant_expenses
+        identifier: mgramseva_tenant_expenses
+        description: Expenses for the tenant
+
   # - name: silver
   #   schema: intermediate
   #   tables:
