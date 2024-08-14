@@ -21,7 +21,7 @@ select
 		ROUND(
 			("data"->'auditDetails'->>'createdTime')::numeric * 0.001
 		)
-	) AT TIME ZONE 'UTC' AS createdtime,
+	) AT TIME ZONE 'UTC' AS createdtime
 
 from {{ source('source_mgramseva', 'demands') }}
 
