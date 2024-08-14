@@ -16,7 +16,12 @@ select
 		ROUND(
 			("data"->>'taxPeriodTo')::numeric * 0.001
 		)
-	) AT TIME ZONE 'UTC' AS taxperiodto
+	) AT TIME ZONE 'UTC' AS taxperiodto,
+	to_timestamp(
+		ROUND(
+			("data"->'auditDetails'->>'createdTime')::numeric * 0.001
+		)
+	) AT TIME ZONE 'UTC' AS createdtime
 
 from {{ source('source_mgramseva', 'demands') }}
 

@@ -5,16 +5,8 @@
 select 
   "data"->>'OMMisc' as ommisc,
   "data"->>'tenantId' as tenantid,
-  to_timestamp(
-		ROUND(
-			("data"->'fromDate')::numeric * 0.001
-		)
-	) AT TIME ZONE 'UTC'  as fromdate,
-  to_timestamp(
-		ROUND(
-			("data"->'toDate')::numeric * 0.001
-		)
-	) AT TIME ZONE 'UTC'  as todate,
+  to_date("data"->>'fromDate', 'YYYY-MM-DD') as fromdate,
+  to_date("data"->>'toDate', 'YYYY-MM-DD') as todate,
   ("data"->>'salary')::numeric as salary,
   ("data"->>'billsPaid')::numeric as billspaid,
   ("data"->>'amountPaid')::numeric as amountpaid,
