@@ -8,12 +8,7 @@ WITH flattened AS (
     "data"->>'status' as demandstatus,
     "data"->>'tenantId' as tenantid,
     "data"->>'consumerCode' as consumercode,
-    to_timestamp(
-      ROUND(
-        ("data"->'auditDetails'->>'createdTime')::numeric * 0.001
-      )
-    ) AT TIME ZONE 'UTC' AS demandcreatedtime,
-
+    "data"->>'demandDate' as demanddate,
     jsonb_array_elements(("data"->>'demandDetails')::jsonb)->>'id' as demanddetailid,
     jsonb_array_elements(("data"->>'demandDetails')::jsonb)->>'taxAmount' as demandamount
   from {{ source('source_mgramseva', 'demands') }}
@@ -24,7 +19,7 @@ SELECT
   demandid,
   demandstatus,
   consumercode,
-  demandcreatedtime,
+  demanddate,
   demanddetailid, 
   demandamount::numeric as demandamount
 FROM flattened
