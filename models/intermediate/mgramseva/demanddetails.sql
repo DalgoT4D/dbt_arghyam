@@ -8,7 +8,8 @@ WITH flattened AS (
     "data"->>'status' as demandstatus,
     "data"->>'tenantId' as tenantid,
     "data"->>'consumerCode' as consumercode,
-    "data"->>'demandDate' as demanddate,
+    "data"->>'demandToDate' as demandtodate,
+    "data"->>'demandFromDate' as demandfromdate,
     jsonb_array_elements(("data"->>'demandDetails')::jsonb)->>'id' as demanddetailid,
     jsonb_array_elements(("data"->>'demandDetails')::jsonb)->>'taxAmount' as demandamount
   from {{ source('source_mgramseva', 'demands') }}
@@ -19,7 +20,8 @@ SELECT
   demandid,
   demandstatus,
   consumercode,
-  demanddate,
+  demandtodate,
+  demandfromdate,
   demanddetailid, 
   demandamount::numeric as demandamount
 FROM flattened
