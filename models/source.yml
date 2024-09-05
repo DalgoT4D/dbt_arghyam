@@ -26,6 +26,9 @@ sources:
       - name: tenant_expenses
         identifier: mgramseva_tenant_expenses
         description: Expenses for the tenant
+      - name: water_connections
+        identifier: mgramseva_water_connections
+        description: Water connections for the tenant
 
   # - name: silver
   #   schema: intermediate
