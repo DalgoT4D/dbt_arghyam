@@ -5,7 +5,7 @@ WITH table_p AS (
            TO_CHAR(paymentdate, 'YYYY-MM-DD') AS month, 
            TO_CHAR(paymentdate, 'Month') AS month_name, 
            SUM(totalpaymentpaid) AS amount_p
-    FROM intermediate_mgramseva.paymentdetails
+    FROM {{ref('paymentdetails')}}
     GROUP BY consumercode, TO_CHAR(paymentdate, 'YYYY-MM-DD'), TO_CHAR(paymentdate, 'Month')
     ORDER BY consumercode, TO_CHAR(paymentdate, 'YYYY-MM-DD')
 ),
@@ -15,7 +15,7 @@ table_d AS (
            TO_CHAR(demandtodate, 'YYYY-MM-DD') AS month, 
            TO_CHAR(demandtodate, 'Month') AS month_name, 
            SUM(demandamount) AS amount_d
-    FROM intermediate_mgramseva.demanddetails
+    FROM {{ref('demanddetails')}}
     GROUP BY consumercode, TO_CHAR(demandtodate, 'YYYY-MM-DD'), TO_CHAR(demandtodate, 'Month')
     ORDER BY consumercode, TO_CHAR(demandtodate, 'YYYY-MM-DD')
 )
