@@ -20,21 +20,27 @@ table_d AS (
     FROM {{ref('demanddetails')}}
     GROUP BY consumercode, tenantid, TO_CHAR(demandtodate, 'YYYY-MM-DD'), TO_CHAR(demandtodate, 'Month')
     ORDER BY consumercode, TO_CHAR(demandtodate, 'YYYY-MM-DD')
+),
+
+water_connections AS (
+    SELECT COALESCE(table_d.consumercode, table_p.consumercode) AS consumercode, 
+           COALESCE(table_d.tenantid, table_p.tenantid) AS tenantid,
+           TO_TIMESTAMP(COALESCE(table_d.month, table_p.month), 'YYYY-MM-DD') AS month, 
+           TO_TIMESTAMP(COALESCE(table_d.month, table_p.month), 'YYYY-MM') AS onlymonth, 
+           COALESCE(table_d.month_name, table_p.month_name) AS month_name, 
+           COALESCE(amount_p, 0) AS total_amount_paid, 
+           COALESCE(amount_d, 0) AS total_amount_due
+    FROM table_p
+    FULL OUTER JOIN table_d 
+        ON table_p.consumercode = table_d.consumercode 
+        AND table_p.month = table_d.month
+    ORDER BY consumercode, month
 )
 
-SELECT COALESCE(table_d.consumercode, table_p.consumercode) AS consumercode, 
-        COALESCE(table_d.tenantid, table_p.tenantid) AS tenantid,
-       TO_TIMESTAMP(COALESCE(table_d.month, table_p.month), 'YYYY-MM-DD') AS month, 
-       TO_TIMESTAMP(COALESCE(table_d.month, table_p.month), 'YYYY-MM') AS onlymonth, 
-       COALESCE(table_d.month_name, table_p.month_name) AS month_name, 
-       COALESCE(amount_p, 0) AS total_amount_paid, 
-       COALESCE(amount_d, 0) AS total_amount_due
-FROM table_p
-FULL OUTER JOIN table_d 
-    ON table_p.consumercode = table_d.consumercode 
-    AND table_p.month = table_d.month
-ORDER BY consumercode, month
-
-
-	
-	
+-- Join with another table based on consumerno
+SELECT wc.*,
+       w.status
+FROM water_connections as wc 
+LEFT JOIN {{ref('waterconnections')}} as w
+    ON wc.consumercode = w.connectionno
+ORDER BY wc.consumercode, wc.month
