@@ -28,6 +28,7 @@ water_connections AS (
            TO_TIMESTAMP(COALESCE(table_d.month, table_p.month), 'YYYY-MM-DD') AS month, 
            TO_TIMESTAMP(COALESCE(table_d.month, table_p.month), 'YYYY-MM') AS onlymonth, 
            COALESCE(table_d.month_name, table_p.month_name) AS month_name, 
+           EXTRACT(YEAR FROM TO_TIMESTAMP(COALESCE(table_d.month, table_p.month), 'YYYY-MM-DD')) AS year,
            COALESCE(amount_p, 0) AS total_amount_paid, 
            COALESCE(amount_d, 0) AS total_amount_due
     FROM table_p
