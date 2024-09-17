@@ -45,3 +45,20 @@ FROM water_connections as wc
 LEFT JOIN {{ref('waterconnections')}} as w
     ON wc.consumercode = w.connectionno
 ORDER BY wc.consumercode, wc.month
+
+
+--Including username by using two other tables
+WITH table_u AS (
+  SELECT username.username, username.name, username."LocationHierarchy", tenant_id.tenant_name
+  FROM
+       {{ source('source_mgramseva_analysis', 'username') }} AS username
+  RIGHT OUTER JOIN
+       {{ source('source_mgramseva_analysis', 'tenant_id') }} AS tenant_id
+  ON username."LocationHierarchy" = tenant_id."LocationHierarchy"
+)
+
+SELECT t2.* , t1.username
+FROM table_u AS t1
+RIGHT OUTER JOIN {{ ref('demand_collection') }} AS t2
+ON REGEXP_REPLACE(t2.tenantid, '.*br\.', '') = t1.tenant_name
+ORDER BY t2.tenantid;

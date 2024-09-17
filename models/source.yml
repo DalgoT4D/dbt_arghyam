@@ -30,6 +30,17 @@ sources:
         identifier: mgramseva_water_connections
         description: Water connections for the tenant
 
+  - name: source_mgramseva_analysis
+    schema: intermediate_mgramseva
+    tables:
+      - name: username
+        identifier: username
+        description:  Contains username of the consumers along with thier location hierarchy.
+      - name: tenant_id
+        identifier: tenant_id
+        description: contains tenant id along with location hierarchy.
+    
+
   # - name: silver
   #   schema: intermediate
   #   tables:
