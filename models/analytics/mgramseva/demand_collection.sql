@@ -36,12 +36,19 @@ water_connections AS (
         ON table_p.consumercode = table_d.consumercode 
         AND table_p.month = table_d.month
     ORDER BY consumercode, month
-)
+),
 
 -- Join with another table based on consumerno
-SELECT wc.*,
+final as (SELECT wc.*,
        w.status
 FROM water_connections as wc 
 LEFT JOIN {{ref('waterconnections')}} as w
     ON wc.consumercode = w.connectionno
-ORDER BY wc.consumercode, wc.month
+ORDER BY wc.consumercode, wc.month)
+
+--including username
+select f.*, u.username
+from final as f 
+left join {{ref('user_tenantid')}} as u
+    ON REGEXP_REPLACE(f.tenantid, '.*br\.', '') = u.tenant_name
+order by f.tenantid
