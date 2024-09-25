@@ -22,28 +22,22 @@ table_d AS (
     ORDER BY consumercode, TO_CHAR(demandtodate, 'YYYY-MM-DD')
 ),
 
-water_connections AS (
+final AS (
     SELECT COALESCE(table_d.consumercode, table_p.consumercode) AS consumercode, 
            COALESCE(table_d.tenantid, table_p.tenantid) AS tenantid,
            TO_TIMESTAMP(COALESCE(table_d.date, table_p.date), 'YYYY-MM-DD') AS date, 
            COALESCE(table_d.reporting_month, table_p.reporting_month) AS reporting_month, 
            EXTRACT(YEAR FROM TO_TIMESTAMP(COALESCE(table_d.date, table_p.date), 'YYYY-MM-DD')) AS reporting_year,
            COALESCE(amount_p, 0) AS total_amount_paid, 
-           COALESCE(amount_d, 0) AS total_amount_due
+           COALESCE(amount_d, 0) AS total_demand,
+           COALESCE(amount_p-amount_d, 0) AS total_advance,
+           COALESCE(amount_d-amount_p, 0) AS total_arrears
     FROM table_p
     FULL OUTER JOIN table_d 
         ON table_p.consumercode = table_d.consumercode 
         AND table_p.date = table_d.date
     ORDER BY consumercode, date
-),
-
--- Join with another table based on consumerno
-final as (SELECT wc.*,
-       w.status
-FROM water_connections as wc 
-LEFT JOIN {{ref('waterconnections')}} as w
-    ON wc.consumercode = w.connectionno
-ORDER BY wc.consumercode, wc.date)
+)
 
 --including username
 select f.*, u.username
