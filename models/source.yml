@@ -70,7 +70,6 @@ sources:
   #     description: Table built on top of subjects_normalized to include NK and op_type
   #   - name: encounters_cdc
   #     description: Table built on top of encounters_normalized to include NK and op_type
-
 models:
   - name: jal_chaupal_form_responses_fact
     description: "Jal Chaupal Form Responses Fact Table"
@@ -322,3 +321,131 @@ models:
         description: "Timestamp when the form was created"
         tests:
           - not_null
+
+  - name: demand_collection
+    description: "Demand Collection Table"
+    columns:
+      - name: consumercode
+        description: "Consumer code associated with the demand"
+        tests:
+          - not_null   
+      - name: tenantid
+        description: "Tenant ID associated with the demand"
+        tests:
+          - not_null 
+      - name: date
+        description: "Date of the demand collection"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: reporting_month
+        description: "Month of the reporting period"
+        tests:
+          - not_null  
+      - name: reporting_year
+        description: "Year of the reporting period"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+      - name: total_amount_paid
+        description: "Total amount paid by the consumer"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+      - name: total_amount_due
+        description: "Total amount due from the consumer"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+      - name: status
+        description: "Status of the demand collection"
+        tests:
+          - not_null  
+      - name: username
+        description: "Username of the person associated with the demand"
+        tests:
+          - not_null  
+
+  - name: advance_and_arrears
+    description: "Advance and Arrears Table"
+    columns:
+      - name: consumercode
+        description: "Consumer code associated with the advance and arrears"
+        tests:
+          - not_null  
+      - name: tenantid
+        description: "Tenant ID associated with the advance and arrears"
+        tests:
+          - not_null  
+      - name: date
+        description: "Date of the advance and arrears entry"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: reporting_month
+        description: "Month of the reporting period"
+        tests:
+          - not_null  
+      - name: reporting_year
+        description: "Year of the reporting period"
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+      - name: total_amount_paid
+        description: "Total amount paid by the consumer"
+        tests:
+          - not_null  
+
+  - name: expenditure 
+    description: "This table stores expenditure data for tenants"
+    
+    columns:
+      - name: tenantid
+        description: "Unique tenant identifier"
+        tests:
+          - not_null 
+      - name: username
+        description: "Username associated with the tenant"
+        tests:
+          - not_null  
+      - name: total_expenditure
+        description: "Total expenditure of the tenant"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric  
+      - name: payment_date
+        description: "Date of the payment"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date  
+
+      - name: reporting_year
+        description: "Year for which the reporting is done"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+
+      - name: reporting_month
+        description: "Month for which the reporting is done"
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: text  
+      - name: total_amount_paid
+        description: "Total amount paid by the tenant"
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric 
+
+        
+        
