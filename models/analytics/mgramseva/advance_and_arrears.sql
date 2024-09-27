@@ -1,3 +1,23 @@
+-- 1. Configuration: The first line sets the configuration options for the subsequent code. 
+--    It specifies that the resulting table should be materialized as a regular table in the 'intermediate_analytics_mgramseva' schema.
+
+-- 2. Common Table Expressions (CTEs): CTEs are temporary result sets that can be referenced within the query. 
+--    In this code, there are three CTEs defined: `table_p`, `taple_d`, `final`.
+
+--    - `table_p`: It essentially aggregates the total payment made by each consumer for each tenant on each specific day and month.
+     
+--    - `table_d`: This query aggregates the total demand amount for each consumer and tenant on a daily and monthly basis.
+   
+--    - `final`: This query combines payment and demand data for each consumercode and tenantid, after that total amount paid is subtracted from total demand to calculate total advance
+      -- , and total demand is subtracted by total amount paid to calculate arrears
+
+-- 3. Final Query: This would result in a final dataset that includes financial amounts (paid and due), total advance , arrears, tenant names, and usernames.
+
+-- In summary, this query combines data from two tables, `paymentdetailes` and `demanddeatils`, using a full outer join based on a common column. 
+   -- To give us a table that contains total advance and total arrears for all the consumer codes, tenantids and usernames.
+
+-- Read about left join here ->>>>> https://www.tutorialspoint.com/sql/sql-full-joins.htm
+
 {{ config(materialized='table') }}
 
 WITH table_p AS (

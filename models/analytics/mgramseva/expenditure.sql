@@ -1,3 +1,19 @@
+-- 1. Configuration: The first line sets the configuration options for the subsequent code. 
+--    It specifies that the resulting table should be materialized as a regular table in the 'intermediate_analytics_mgramseva' schema.
+
+-- 2. Common Table Expressions (CTEs): CTEs are temporary result sets that can be referenced within the query. 
+--    In this code, there is just one CTEs defined: `expense`.
+
+--    - `expenditure`: This CTE (expense) aggregates the total expenditure for each tenant (tenantid) by date and month.
+     
+-- 3. Final Query: This query joins data from the "demand_collection" and expense tables based on tenant ID and date using a full outer join
+
+-- In summary, From this query we get a table that has combined data from the tables "demand_collection" and "tenantexpenses", It shows data of the total amount spent 
+   --  by tenants on bills along with the month, year , total amount collected(total amount paid) and usernames associated with those tenantids.
+
+-- Read about full outer join here ->>>>> https://www.tutorialspoint.com/sql/sql-full-joins.htm
+
+
 {{ config(materialized='table') }}
 
 
