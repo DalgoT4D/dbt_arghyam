@@ -60,13 +60,25 @@ final AS (
 )
 
 --including username
-SELECT 
-    f.*, 
-    u.username
-FROM 
-    final AS f 
-LEFT JOIN 
-    {{ref('user_tenantid')}} AS u
-    ON REGEXP_REPLACE(f.tenantid, '.*br\.', '') = u.tenant_name
-ORDER BY 
-    f.tenantid
+SELECT f.*, 
+           COALESCE(u.username, 'No Username') AS username,
+           f.date::date AS formatted_date,  -- Casting timestamptz to date
+           -- Case statement to derive month_number from reporting_month
+           CASE
+               WHEN f.reporting_month = 'January  ' THEN '01 - January'
+          WHEN f.reporting_month = 'February ' THEN '02 - February'
+        WHEN f.reporting_month = 'March    ' THEN '03 - March'
+        WHEN f.reporting_month = 'April    ' THEN '04 - April'
+        WHEN f.reporting_month = 'May      ' THEN '05 - May'
+        WHEN f.reporting_month = 'June     ' THEN '06 -  June'
+        WHEN f.reporting_month = 'July     ' THEN '07 - July'
+        WHEN f.reporting_month = 'August   ' THEN '08 - August'
+        WHEN f.reporting_month = 'September' THEN '09 - September'
+        WHEN f.reporting_month = 'October  ' THEN '10 - October'
+        WHEN f.reporting_month = 'November ' THEN '11 - November'
+        WHEN f.reporting_month = 'December ' THEN '12 - December'
+           END AS reporting_month_number
+    FROM final AS f 
+    LEFT JOIN {{ref('user_tenantid')}} AS u
+        ON REGEXP_REPLACE(f.tenantid, '.*br\.', '') = u.tenant_name
+    ORDER BY f.tenantid
