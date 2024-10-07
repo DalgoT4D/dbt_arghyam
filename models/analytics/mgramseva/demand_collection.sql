@@ -53,7 +53,9 @@ water_connections AS (
            COALESCE(table_d.reporting_month, table_p.reporting_month) AS reporting_month, 
            EXTRACT(YEAR FROM TO_TIMESTAMP(COALESCE(table_d.date, table_p.date), 'YYYY-MM-DD')) AS reporting_year,
            COALESCE(amount_p, 0) AS total_amount_paid, 
-           COALESCE(amount_d, 0) AS total_amount_due
+           COALESCE(amount_d, 0) AS total_amount_due,
+           COALESCE(amount_p-amount_d, 0) AS total_advance,
+           COALESCE(amount_d-amount_p, 0) AS total_arrears
     FROM table_p
     FULL OUTER JOIN table_d 
         ON table_p.consumercode = table_d.consumercode 
@@ -71,11 +73,25 @@ final AS (
     ORDER BY wc.consumercode, wc.date
 )
 
--- Including username and formatting date
+-- Join on the month number
 SELECT f.*, 
-       COALESCE(u.username, 'No Username') AS username,
-       f.date::date AS formatted_date  -- Casting timestamptz to date
-FROM final AS f 
-LEFT JOIN {{ref('user_tenantid')}} AS u
-    ON REGEXP_REPLACE(f.tenantid, '.*br\.', '') = u.tenant_name
-ORDER BY f.tenantid
+           COALESCE(u.username, 'No Username') AS username,
+           -- Case statement to derive month_number from reporting_month
+           CASE
+               WHEN f.reporting_month = 'January  ' THEN '01 - January'
+          WHEN f.reporting_month = 'February ' THEN '02 - February'
+        WHEN f.reporting_month = 'March    ' THEN '03 - March'
+        WHEN f.reporting_month = 'April    ' THEN '04 - April'
+        WHEN f.reporting_month = 'May      ' THEN '05 - May'
+        WHEN f.reporting_month = 'June     ' THEN '06 -  June'
+        WHEN f.reporting_month = 'July     ' THEN '07 - July'
+        WHEN f.reporting_month = 'August   ' THEN '08 - August'
+        WHEN f.reporting_month = 'September' THEN '09 - September'
+        WHEN f.reporting_month = 'October  ' THEN '10 - October'
+        WHEN f.reporting_month = 'November ' THEN '11 - November'
+        WHEN f.reporting_month = 'December ' THEN '12 - December'
+           END AS reporting_month_number
+    FROM final AS f 
+    LEFT JOIN {{ref('user_tenantid')}} AS u
+        ON REGEXP_REPLACE(f.tenantid, '.*br\.', '') = u.tenant_name
+    ORDER BY f.tenantid

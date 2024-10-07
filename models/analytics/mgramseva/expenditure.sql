@@ -16,7 +16,6 @@
 
 {{ config(materialized='table') }}
 
-
 WITH expense AS (
     SELECT 
         tenantid, 
@@ -37,7 +36,23 @@ SELECT
     COALESCE(e.total_expenditure, 0) AS total_expenditure,  
     COALESCE(DATE(d."date"), e.date) AS payment_date, 
     COALESCE(d.reporting_year, EXTRACT(YEAR FROM e.date)) AS reporting_year, 
-    COALESCE(d.reporting_month, e.month_name) AS reporting_month,  
+    COALESCE(d.reporting_month, e.month_name) AS reporting_month,
+    -- Case statement to derive month_number from reporting_month or month_name
+    CASE
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'January  ' THEN '01 - January'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'February ' THEN '02 - February'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'March    ' THEN '03 - March'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'April    ' THEN '04 - April'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'May      ' THEN '05 - May'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'June     ' THEN '06 - June'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'July     ' THEN '07 - July'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'August   ' THEN '08 - August'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'September' THEN '09 - September'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'October  ' THEN '10 - October'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'November ' THEN '11 - November'
+        WHEN COALESCE(d.reporting_month, e.month_name) = 'December ' THEN '12 - December'
+        ELSE 'Unknown'
+    END AS reporting_month_number,
     COALESCE(d.total_amount_paid, 0) AS total_amount_paid  
 FROM 
     {{ref('demand_collection')}} d
@@ -47,4 +62,4 @@ ON
     d.tenantid = e.tenantid AND
     DATE(d."date") = e.date 
 ORDER BY 
-    COALESCE(d.tenantid, e.tenantid)  
+    COALESCE(d.tenantid, e.tenantid)
