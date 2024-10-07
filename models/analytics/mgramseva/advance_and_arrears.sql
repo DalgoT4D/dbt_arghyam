@@ -82,3 +82,4 @@ SELECT f.*,
     LEFT JOIN {{ref('user_tenantid')}} AS u
         ON REGEXP_REPLACE(f.tenantid, '.*br\.', '') = u.tenant_name
     ORDER BY f.tenantid
+

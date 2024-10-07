@@ -53,7 +53,9 @@ water_connections AS (
            COALESCE(table_d.reporting_month, table_p.reporting_month) AS reporting_month, 
            EXTRACT(YEAR FROM TO_TIMESTAMP(COALESCE(table_d.date, table_p.date), 'YYYY-MM-DD')) AS reporting_year,
            COALESCE(amount_p, 0) AS total_amount_paid, 
-           COALESCE(amount_d, 0) AS total_amount_due
+           COALESCE(amount_d, 0) AS total_amount_due,
+           COALESCE(amount_p-amount_d, 0) AS total_advance,
+           COALESCE(amount_d-amount_p, 0) AS total_arrears
     FROM table_p
     FULL OUTER JOIN table_d 
         ON table_p.consumercode = table_d.consumercode 
@@ -69,21 +71,11 @@ final AS (
     LEFT JOIN {{ref('waterconnections')}} AS w
         ON wc.consumercode = w.connectionno
     ORDER BY wc.consumercode, wc.date
-),
-
--- Including username and formatting date
-lasts as (SELECT f.*, 
-       COALESCE(u.username, 'No Username') AS username,
-       f.date::date AS formatted_date  -- Casting timestamptz to date
-FROM final AS f 
-LEFT JOIN {{ref('user_tenantid')}} AS u
-    ON REGEXP_REPLACE(f.tenantid, '.*br\.', '') = u.tenant_name
-ORDER BY f.tenantid)
+)
 
 -- Join on the month number
 SELECT f.*, 
            COALESCE(u.username, 'No Username') AS username,
-           f.date::date AS formatted_date,  -- Casting timestamptz to date
            -- Case statement to derive month_number from reporting_month
            CASE
                WHEN f.reporting_month = 'January  ' THEN '01 - January'
