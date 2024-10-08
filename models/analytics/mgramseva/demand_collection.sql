@@ -92,6 +92,6 @@ SELECT f.*,
         WHEN f.reporting_month = 'December ' THEN '12 - December'
            END AS reporting_month_number
     FROM final AS f 
-    LEFT JOIN {{ref('user_tenantid')}} AS u
-        ON REGEXP_REPLACE(f.tenantid, '.*br\.', '') = u.tenant_name
+    LEFT JOIN {{ref('transformed_tenantid')}} AS u
+        ON f.tenantid = u.tenantid
     ORDER BY f.tenantid
