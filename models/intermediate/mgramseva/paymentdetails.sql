@@ -14,6 +14,11 @@ with payment_details as (
 				("data"->>'transactionDate')::numeric * 0.001
 			)
 		) AT TIME ZONE 'UTC' AS paymentdate,
+		to_timestamp(
+			ROUND(
+				("data"->'auditDetails'->>'lastModifiedTime')::numeric * 0.001
+			)
+		) AT TIME ZONE 'UTC' AS lastModifiedate,
 		"data"->>'transactionNumber' as paymenttxnnumber,
 		"data"->>'mobileNumber' as mobilenumber,
 		"data"->>'payerId' as payerid,
@@ -27,6 +32,7 @@ select
 	totalpaymentdue,
 	totalpaymentpaid,
 	paymentdate,
+	lastmodifiedate,
 	paymenttxnnumber,
 	mobilenumber,
 	payerid,

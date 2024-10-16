@@ -10,6 +10,7 @@ WITH flattened AS (
     "data"->>'consumerCode' as consumercode,
     "data"->>'taxPeriodTo' as demandtodate, 
     "data"->>'taxPeriodFrom' as demandfromdate,
+    "data"->'auditDetails'->>'lastModifiedTime' as lastmodifiedate,
     jsonb_array_elements(("data"->>'demandDetails')::jsonb)->>'id' as demanddetailid,
     jsonb_array_elements(("data"->>'demandDetails')::jsonb)->>'taxAmount' as demandamount
   from {{ source('source_mgramseva', 'demands') }}
@@ -22,6 +23,7 @@ SELECT
   consumercode,
   TO_TIMESTAMP(CAST(demandtodate AS NUMERIC) / 1000) :: DATE as demandToDate,
   TO_TIMESTAMP(CAST(demandfromdate AS NUMERIC) / 1000) :: DATE as demandFromDate,
+  TO_TIMESTAMP(CAST(lastmodifiedate AS NUMERIC) / 1000) :: DATE as lastmodifiedate,
   demanddetailid, 
   demandamount::numeric as demandamount
 FROM flattened
