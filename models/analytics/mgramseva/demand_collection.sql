@@ -26,7 +26,7 @@
 WITH table_p AS (
     SELECT consumercode, 
            tenantid,
-           TO_CHAR(paymentdate, 'YYYY-MM-DD') AS date, 
+           TO_CHAR(paymentdate, 'YYYY-MM-DD') AS meeting_date, 
            TO_CHAR(paymentdate, 'Month') AS reporting_month, 
            SUM(totalpaymentpaid) AS amount_p
     FROM {{ref('paymentdetails')}}
@@ -37,7 +37,7 @@ WITH table_p AS (
 table_d AS (
     SELECT consumercode, 
            tenantid,
-           TO_CHAR(demandtodate, 'YYYY-MM-DD') AS date, 
+           TO_CHAR(demandtodate, 'YYYY-MM-DD') AS meeting_date, 
            TO_CHAR(demandtodate, 'Month') AS reporting_month, 
            SUM(demandamount) AS amount_d
     FROM {{ref('demanddetails')}}
@@ -49,9 +49,9 @@ water_connections AS (
     SELECT COALESCE(table_d.consumercode, table_p.consumercode) AS consumercode, 
            COALESCE(table_d.tenantid, table_p.tenantid) AS tenantid,
            -- Convert timestampz to date
-           TO_TIMESTAMP(COALESCE(table_d.date, table_p.date), 'YYYY-MM-DD')::date AS date, 
+           TO_TIMESTAMP(COALESCE(table_d.meeting_date, table_p.meeting_date), 'YYYY-MM-DD')::date AS meeting_date, 
            COALESCE(table_d.reporting_month, table_p.reporting_month) AS reporting_month, 
-           EXTRACT(YEAR FROM TO_TIMESTAMP(COALESCE(table_d.date, table_p.date), 'YYYY-MM-DD')) AS reporting_year,
+           EXTRACT(YEAR FROM TO_TIMESTAMP(COALESCE(table_d.meeting_date, table_p.meeting_date), 'YYYY-MM-DD')) AS reporting_year,
            COALESCE(amount_p, 0) AS total_amount_paid, 
            COALESCE(amount_d, 0) AS total_amount_due,
            COALESCE(amount_p-amount_d, 0) AS total_advance,
@@ -59,8 +59,8 @@ water_connections AS (
     FROM table_p
     FULL OUTER JOIN table_d 
         ON table_p.consumercode = table_d.consumercode 
-        AND table_p.date = table_d.date
-    ORDER BY consumercode, date
+        AND table_p.meeting_date = table_d.meeting_date
+    ORDER BY consumercode, meeting_date
 ),
 
 -- Join with another table based on consumerno
@@ -70,7 +70,7 @@ final AS (
     FROM water_connections AS wc 
     LEFT JOIN {{ref('waterconnections')}} AS w
         ON wc.consumercode = w.connectionno
-    ORDER BY wc.consumercode, wc.date
+    ORDER BY wc.consumercode, wc.meeting_date
 )
 
 -- Join on the month number

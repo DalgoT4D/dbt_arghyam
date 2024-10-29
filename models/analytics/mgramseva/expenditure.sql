@@ -20,22 +20,22 @@ WITH expense AS (
     SELECT 
         tenantid, 
         TO_CHAR(todate, 'Month') AS month_name,
-        todate::date AS date, 
+        todate::date AS meeting_date, 
         COALESCE(SUM(totalexpenditure), 0) AS total_expenditure  
     FROM 
         {{ref('tenantexpenses')}} 
     GROUP BY 
         tenantid, 
         TO_CHAR(todate, 'Month'), 
-        todate::date  
+        todate::date 
 )
 
 SELECT 
     COALESCE(d.tenantid, e.tenantid) AS tenantid,  
     COALESCE(d.username, 'Unknown') AS username,  
     COALESCE(e.total_expenditure, 0) AS total_expenditure,  
-    COALESCE(DATE(d."date"), e.date) AS payment_date, 
-    COALESCE(d.reporting_year, EXTRACT(YEAR FROM e.date)) AS reporting_year, 
+    COALESCE(DATE(d."meeting_date"), e.meeting_date) AS meeting_date, 
+    COALESCE(d.reporting_year, EXTRACT(YEAR FROM e.meeting_date)) AS reporting_year, 
     COALESCE(d.reporting_month, e.month_name) AS reporting_month,
     -- Case statement to derive month_number from reporting_month or month_name
     CASE
@@ -60,6 +60,6 @@ FULL OUTER JOIN
     expense e
 ON 
     d.tenantid = e.tenantid AND
-    DATE(d."date") = e.date 
+    DATE(d."meeting_date") = e.meeting_date
 ORDER BY 
     COALESCE(d.tenantid, e.tenantid)
