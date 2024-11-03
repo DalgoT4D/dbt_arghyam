@@ -33,7 +33,7 @@ pivoted AS (
         MAX(CASE WHEN encounter_type = 'WIMC meeting' THEN 'Yes' ELSE 'No' END) AS "WIMC Meeting",
         MAX(CASE WHEN encounter_type = 'Jal Chaupal' THEN 'Yes' ELSE 'No' END) AS "Jal Chaupal",
         MAX(CASE WHEN encounter_type = 'Log book record' THEN 'Yes' ELSE 'No' END) AS "Log book record",
-        MAX(CASE WHEN encounter_type = 'Water Quality Testing' THEN 'Yes' ELSE 'No' END) AS "Water Quality Testing",
+        MAX(CASE WHEN encounter_type = 'Water Quality testing' THEN 'Yes' ELSE 'No' END) AS "Water Quality Testing",
         MAX(CASE WHEN encounter_type = 'Tank Cleaning' THEN 'Yes' ELSE 'No' END) AS "Tank Cleaning"
     FROM source
     GROUP BY meeting_date, username
