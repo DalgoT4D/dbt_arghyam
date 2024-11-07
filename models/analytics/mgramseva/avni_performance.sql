@@ -1,3 +1,30 @@
+-- 1. Configuration: The first line sets the configuration options for the subsequent code. 
+--    It specifies that the resulting table should be materialized as a regular table in the 'intermediate_analytics_mgramseva' schema.
+
+-- 2. Common Table Expressions (CTEs): CTEs are temporary result sets that can be referenced within the query. 
+--    In this code, there are five CTEs defined: `water_stats`, `quality_stats`, `wimc_stats`,`jal_chaupal_stats` and `tariff_collection` .
+
+--    - `water_stats`: This CTE calculates the total days each user had water (total_days_with_water) and the total days recorded (water or no water) within the last 180 days. It references log_book_form_responses_fact to get data on water days and non-water days.
+     
+--    - `quality_stats`: This CTE finds the most recent date of water quality testing for each user (last_test_date), assessing the recency of quality checks. It references water_quality_testing_form_responses_fact.
+   
+--    - `wimc_stats`: This CTE counts the number of WIMC meetings attended by each user in the last 6 months.It uses the wimc_meeting_form_responses_fact table for meeting records.
+
+--    - `jal_chaupal_stats`: This CTE counts the Jal Chaupal meetings attended by each user in the last 6 months.It uses the "jal_chaupal_form_responses_fact" table for these records.
+
+--    - `tariff_collection`: This CTE aggregates tariff collection data, calculating the total amount collected and 
+        --the target amount due for each user in the last 6 months. We are getting this using the "demand_collection" table
+
+-- 3. Final Query: The final query combines data from each CTE with a LEFT JOIN on username to calculate key scores: percent_days_with_water: % of days with water.
+       --water_availability_score: 1 for 90%+, 0.5 for 60-89%, otherwise 0.
+       --water_quality_score: 1 if tested within 6 months, else 0.
+       --wimc_meeting_score & jal_chaupal_score: 1 for 4+ meetings, 0.5 for 2-4, else 0.
+       --water_tariff_collection_score: 1 if 50%+ of target collected, 0.5 for 25-49%, else 0.
+       --total_score: Sum of all individual scores.
+   
+-- In summary,  This query aggregates and scores data on water availability, quality, community involvement, and financial 
+--contributions for each user over the past 6 months, creating a composite total_score to reflect user engagement and service status.
+
 {{ config(materialized='table') }}
 
 WITH water_stats AS (
