@@ -218,9 +218,9 @@ SELECT
     activity_id,
     username,
     meeting_date,
-    parameter,
-    last_test_done_value,
-    permissible_limits,
+    parameter as "पैरामीटर",
+    last_test_done_value as "अंतिम परीक्षण किया गया मान",
+    permissible_limits as "अनुमेय सीमा",
     created_at_timestamp,
     create_audit_id
 FROM parameter_values
