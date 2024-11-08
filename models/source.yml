@@ -444,52 +444,72 @@ models:
       - name: total_days_with_water
         description: "Total days with water availability."
         tests:
-          - not_null
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 365 # (Optional)
+             
 
       - name: total_days
         description: "Total days."
         tests:
           - not_null
-    
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 365 # (Optional)
 
       - name: percent_days_with_water
         description: "Percentage of days with water availability."
         tests:
           - not_null
-    
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 100 # (Optional)
 
       - name: water_availability_score
         description: "Score for water availability."
         tests:
           - not_null
-    
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
 
       - name: water_quality_score
         description: "Score for water quality."
         tests:
           - not_null
-  
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
 
       - name: wimc_meeting_score
         description: "Score for WIMC meetings."
         tests:
           - not_null
-   
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
 
       - name: jal_chaupal_score
         description: "Score for Jal Chaupal."
         tests:
           - not_null
-    
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
 
       - name: water_tariff_collection_score
         description: "Score for water tariff collection."
         tests:
           - not_null
- 
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
 
       - name: total_score
         description: "Total score aggregating different parameters."
         tests:
           - not_null
-        
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 5 # (Optional)
