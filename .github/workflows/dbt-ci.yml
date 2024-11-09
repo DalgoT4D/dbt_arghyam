@@ -37,19 +37,14 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-
-      # Ensure SQLFluff has dbt context and profiles for linting
+  
       - name: Lint models
         run: |
-          # Set up the DBT_PROFILES_DIR if it's not in the root directory
-          export DBT_PROFILES_DIR=$GITHUB_WORKSPACE
-          # Run SQLFluff lint with dbt integration and point to your profiles directory
-          sqlfluff lint models --dialect dbt
-        env:
-          DBT_PROFILES_DIR: "./"  # Adjust if your profiles are in a different directory
+          sqlfluff lint models -f json -o sqlfluff_lint_report.json
 
-      - name: Upload coverage reports to codecov
+      - name: Upload lint report to Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: sqlfluff_lint_report.json
           fail_ci_if_error: true
