@@ -1,12 +1,12 @@
 name: Our first dbt PR job
-#updates
+
 on:
   pull_request:
     types:
-    - opened
-    - reopened
-    - synchronize
-    - ready_for_review
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
   push:
     branches:
       - '!main'
@@ -30,23 +30,21 @@ jobs:
       - name: Install dbt dependencies
         run: dbt deps
 
-      - name: dbt build
-        run: dbt build --full-refresh --profiles-dir ./
-        env:
-          POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-  
-      - name: Lint dbt models
-        if: steps.get_files_to_lint.outputs.lintees != ''
-        shell: bash -l {0}
-        run: |
-          sqlfluff lint --format github-annotation --annotation-level failure --nofail ${{ steps.get_files_to_lint.outputs.lintees }} > annotations.json
+      # Verify SQLFluff installation
+      - name: Verify SQLFluff Installation
+        run: sqlfluff --version
 
-      - name: Annotate
-        uses: yuzutech/annotations-action@v0.3.0
+      # Lint models with JSON output
+      - name: Run SQLFluff Lint with JSON Output
+        run: |
+          sqlfluff lint models --dialect postgres --format json --write-output sqlfluff_coverage.json
+
+      # Upload JSON report to Codecov
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v2
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          title: "SQLFluff Lint"
-          input: "./annotations.json"
+          files: sqlfluff_coverage.json
+          flags: sqlfluff
+          name: "SQLFluff Lint Coverage"
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
