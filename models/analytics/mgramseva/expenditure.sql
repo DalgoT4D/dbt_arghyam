@@ -9,7 +9,7 @@
 -- 3. Final Query: This query joins data from the "demand_collection" and expense tables based on tenant ID and date using a full outer join
 
 -- In summary, From this query we get a table that has combined data from the tables "demand_collection" and "tenantexpenses", It shows data of the total amount spent 
-   --  by tenants on bills along with the month, year , total amount collected(total amount paid) and usernames associated with those tenantids.
+--  by tenants on bills along with the month, year , total amount collected(total amount paid) and usernames associated with those tenantids.
 
 -- Read about full outer join here ->>>>> https://www.tutorialspoint.com/sql/sql-full-joins.htm
 
@@ -19,11 +19,11 @@
 WITH expense AS (
     SELECT 
         tenantid, 
-        TO_CHAR(todate, 'Month') AS month_name,
-        todate::date AS meeting_date, 
+        todate::date AS meeting_date,
+        TO_CHAR(todate, 'Month') AS month_name, 
         COALESCE(SUM(totalexpenditure), 0) AS total_expenditure  
     FROM 
-        {{ref('tenantexpenses')}} 
+        {{ ref('tenantexpenses') }} 
     GROUP BY 
         tenantid, 
         TO_CHAR(todate, 'Month'), 
@@ -34,7 +34,7 @@ SELECT
     COALESCE(d.tenantid, e.tenantid) AS tenantid,  
     COALESCE(d.username, 'Unknown') AS username,  
     COALESCE(e.total_expenditure, 0) AS total_expenditure,  
-    COALESCE(DATE(d."meeting_date"), e.meeting_date) AS meeting_date, 
+    COALESCE(DATE(d.meeting_date), e.meeting_date) AS meeting_date, 
     COALESCE(d.reporting_year, EXTRACT(YEAR FROM e.meeting_date)) AS reporting_year, 
     COALESCE(d.reporting_month, e.month_name) AS reporting_month,
     -- Case statement to derive month_number from reporting_month or month_name
@@ -55,11 +55,11 @@ SELECT
     END AS reporting_month_number,
     COALESCE(d.total_amount_paid, 0) AS total_amount_paid  
 FROM 
-    {{ref('demand_collection')}} d
+    {{ ref('demand_collection') }} AS d
 FULL OUTER JOIN 
-    expense e
-ON 
-    d.tenantid = e.tenantid AND
-    DATE(d."meeting_date") = e.meeting_date
+    expense AS e
+    ON 
+        d.tenantid = e.tenantid
+        AND DATE(d.meeting_date) = e.meeting_date
 ORDER BY 
     COALESCE(d.tenantid, e.tenantid)

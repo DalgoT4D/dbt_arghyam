@@ -3,27 +3,27 @@
 ) }}
 
 WITH flattened AS (
-  select 
-    "data"->>'id' as demandid,
-    "data"->>'status' as demandstatus,
-    "data"->>'tenantId' as tenantid,
-    "data"->>'consumerCode' as consumercode,
-    "data"->>'taxPeriodTo' as demandtodate, 
-    "data"->>'taxPeriodFrom' as demandfromdate,
-    "data"->'auditDetails'->>'lastModifiedTime' as lastmodifiedate,
-    jsonb_array_elements(("data"->>'demandDetails')::jsonb)->>'id' as demanddetailid,
-    jsonb_array_elements(("data"->>'demandDetails')::jsonb)->>'taxAmount' as demandamount
-  from {{ source('source_mgramseva', 'demands') }}
+    SELECT 
+        data->>'id' AS demandid,
+        data->>'status' AS demandstatus,
+        data->>'tenantId' AS tenantid,
+        data->>'consumerCode' AS consumercode,
+        data->>'taxPeriodTo' AS demandtodate, 
+        data->>'taxPeriodFrom' AS demandfromdate,
+        data->'auditDetails'->>'lastModifiedTime' AS lastmodifiedate,
+        jsonb_array_elements((data->>'demandDetails')::jsonb)->>'id' AS demanddetailid,
+        jsonb_array_elements((data->>'demandDetails')::jsonb)->>'taxAmount' AS demandamount
+    FROM {{ source('source_mgramseva', 'demands') }}
 )
 
 SELECT 
-  tenantid, 
-  demandid,
-  demandstatus,
-  consumercode,
-  TO_TIMESTAMP(CAST(demandtodate AS NUMERIC) / 1000) :: DATE as demandToDate,
-  TO_TIMESTAMP(CAST(demandfromdate AS NUMERIC) / 1000) :: DATE as demandFromDate,
-  TO_TIMESTAMP(CAST(lastmodifiedate AS NUMERIC) / 1000) :: DATE as lastmodifiedate,
-  demanddetailid, 
-  demandamount::numeric as demandamount
+    tenantid, 
+    demandid,
+    demandstatus,
+    consumercode,
+    to_timestamp(demandtodate::numeric / 1000) :: date AS demandtodate,
+    to_timestamp(demandfromdate::numeric / 1000) :: date AS demandfromdate,
+    to_timestamp(lastmodifiedate::numeric / 1000) :: date AS lastmodifiedate,
+    demanddetailid, 
+    demandamount::numeric AS demandamount
 FROM flattened

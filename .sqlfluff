@@ -3,7 +3,7 @@
 [sqlfluff]
 # Supported dialects https://docs.sqlfluff.com/en/stable/dialects.html
 # Or run 'sqlfluff dialects'
-dialect = snowflake
+dialect = postgres
 # Comma separated list of rules to exclude, or None
 exclude_rules = L001,L029
 max_line_length = 120

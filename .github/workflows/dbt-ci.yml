@@ -37,6 +37,9 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+      
+      - name: Benchmarking models
+        run: "sqlfluff lint models --bench"
   
       - name: Lint models
-        run: "sqlfluff lint models"
+        run: "sqlfluff lint models -f human"
