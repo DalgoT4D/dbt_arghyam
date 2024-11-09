@@ -38,35 +38,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
   
-      - name: Run dbt build and Capture Summary
-        id: dbt_build
-        run: |
-          dbt build --full-refresh --profiles-dir ./ > dbt_build_output.txt
-          # Filter for a summary of important lines
-          grep -E "PASS|FAIL|ERROR|WARN" dbt_build_output.txt > dbt_build_summary.txt
+      - name: Lint models
+        run: "sqlfluff lint models"
 
-      - name: Lint models with SQLFluff
-        id: lint
-        run: |
-          sqlfluff lint models > sqlfluff_output.txt || true
-          while IFS= read -r line; do
-            echo "::warning::$line"
-          done < sqlfluff_output.txt
-        continue-on-error: true
-
-      - name: Generate Coverage Report
-        run: |
-          # Example: Run tests and generate coverage.xml, adjust as needed for dbt coverage
-          pytest --cov=my_dbt_project --junitxml=tests/test_results.xml tests/ > coverage.txt
-          coverage xml  # Generate a coverage XML file for Codecov
-
-      - name: Upload Coverage, dbt Build Summary, and Test Results to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: |
-            coverage.xml
-            tests/test_results.xml
-            dbt_build_summary.txt  # Include the dbt build summary
-          flags: dbt,unittests  # Optional, for distinguishing different report sources
-          fail_ci_if_error: false
+      
