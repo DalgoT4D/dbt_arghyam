@@ -31,14 +31,14 @@ jobs:
 
       # Lint models and save output to XML
       - name: Lint models
-        run: "sqlfluff lint models --format xml > sqlfluff_coverage.xml"
+        run: "sqlfluff lint models --format json > sqlfluff_coverage.json"
 
-      # Upload SQLFluff report to Codecov
       - name: Upload to Codecov
         uses: codecov/codecov-action@v2
         with:
-          files: sqlfluff_coverage.xml
+          files: sqlfluff_coverage.json
           flags: sqlfluff
           name: "SQLFluff Lint Coverage"
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
