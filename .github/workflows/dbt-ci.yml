@@ -1,53 +1,44 @@
-name: dbt Slim CI
+name: Our first dbt PR job
 
 on:
   pull_request:
+    types:
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
+  push:
     branches:
-      - main  # Trigger on PRs to the main branch
+      - '!main'
 
 jobs:
-  dbt-slim-ci:
+  dbt_ci:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v2
 
-      # Step 2: Set up Python environment
-      - name: Set up Python
+      - name: Set Up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.8'
 
-      # Step 3: Install dbt and dependencies
-      - name: Install dbt and dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install dbt-core dbt-postgres  # Replace with the appropriate adapter for your database
+      - name: Install requirements
+        run: pip install -r requirements.txt  
 
-      # Step 4: Generate and store manifest for the main branch (for state comparison)
-      - name: Generate dbt manifest for main branch
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: |
-          dbt compile --target-path=prod-run-artifacts
-          git add prod-run-artifacts/manifest.json
-          git commit -m "Update main branch manifest for Slim CI"
-          git push
+      - name: Install dbt dependencies
+        run: dbt deps
 
-      # Step 5: Generate feature branch manifest for comparison
-      - name: Generate feature branch manifest
-        run: dbt compile
+      - name: dbt build
+        run: dbt build --full-refresh --profiles-dir ./
+        env:
+          DBT_USER: ${{ secrets.DBT_USER }}
+          DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+          DBT_HOST: ${{ secrets.DBT_HOST }}
+          DBT_PORT: ${{ secrets.DBT_PORT }}
+          DBT_DATABASE: ${{ secrets.DBT_DATABASE }}
+          DBT_SCHEMA: ${{ secrets.DBT_SCHEMA } 
 
-      # Step 6: List modified models using Slim CI pattern
-      - name: List modified models
-        id: modified_models
-        run: |
-          OUTPUT=$(dbt ls --select state:modified+ --defer --state=prod-run-artifacts)
-          echo "::set-output name=modified_models::$OUTPUT"
-
-      # Step 7: Run dbt only on modified models
-      - name: Run dbt on modified models
-        if: steps.modified_models.outputs.modified_models != ''
-        run: |
-          dbt run --select state:modified+ --defer --state=prod-run-artifacts
+      - name: Lint models
+        run: "sqlfluff lint models"
