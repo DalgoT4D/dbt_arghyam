@@ -34,9 +34,17 @@ jobs:
       - name: Verify SQLFluff Installation
         run: sqlfluff --version
 
-      # Lint models with JSON output and redirect to file
+      # List models directory to confirm accessibility of files
+      - name: List models directory
+        run: ls -R models
+
+      # Run SQLFluff Lint in human-readable format as a dry run
+      - name: Run SQLFluff Lint (dry run)
+        run: sqlfluff lint models --dialect postgres --disregard-sqlfluffignores -v
+
+      # Run SQLFluff Lint with JSON output if dry run succeeds
       - name: Run SQLFluff Lint with JSON Output
-        run: sqlfluff lint models --dialect postgres --format json > sqlfluff_coverage.json
+        run: sqlfluff lint models --dialect postgres --format json --disregard-sqlfluffignores > sqlfluff_coverage.json
 
       # Upload JSON report to Codecov
       - name: Upload to Codecov
