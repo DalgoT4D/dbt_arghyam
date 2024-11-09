@@ -33,12 +33,25 @@ jobs:
       - name: Lint models
         run: "sqlfluff lint models --format json > sqlfluff_coverage.json"
 
+      - name: Convert JSON to XML
+        run: |
+          python -c "
+          import json, dicttoxml
+          with open('sqlfluff_coverage.json') as json_file:
+              data = json.load(json_file)
+          xml_data = dicttoxml.dicttoxml(data, custom_root='coverage', attr_type=False)
+          with open('sqlfluff_coverage.xml', 'wb') as xml_file:
+              xml_file.write(xml_data)
+          "
+        shell: bash
+
       - name: Upload to Codecov
         uses: codecov/codecov-action@v2
         with:
-          files: sqlfluff_coverage.json
+          files: sqlfluff_coverage.xml
           flags: sqlfluff
           name: "SQLFluff Lint Coverage"
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
+
 
