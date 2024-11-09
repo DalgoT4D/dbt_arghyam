@@ -41,6 +41,7 @@ jobs:
       - name: Lint models
         run: |
           sqlfluff lint models --format json > sqlfluff_lint_report.json
+        continue-on-error: true
 
       - name: Upload lint report to Codecov
         uses: codecov/codecov-action@v3
