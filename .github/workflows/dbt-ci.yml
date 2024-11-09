@@ -39,4 +39,4 @@ jobs:
       #     POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
   
       - name: Lint models
-        run: "sqlfluff lint models -f github-annotation"
+        run: "sqlfluff lint models"
