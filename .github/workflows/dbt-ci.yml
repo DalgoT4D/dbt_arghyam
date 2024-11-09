@@ -38,14 +38,30 @@ jobs:
       #     POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       #     POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
   
-      - name: Lint models
+      - name: Run Tests and Coverage
         run: |
-          sqlfluff lint models --format json > sqlfluff_lint_report.json
-        continue-on-error: true
+          coverage run --omit ddpui/api/superset_api.py,ddpui/api/task_api.py,ddpui/migrations/*.py -m pytest --durations=20
+          coverage xml
+          coverage report --fail-under=70
 
-      - name: Upload lint report to Codecov
+      - name: Check Coverage Percentage
+        run: |
+          coverage_percentage=$(coverage report --show-missing | tail -n 1 | awk '{print $4}')
+          if (( $(echo "$coverage_percentage < 70" | bc -l) )); then
+            echo "Coverage percentage is below 70%"
+            exit 1
+          fi
+
+      - name: Generate SQLFluff Lint Report in XML Format
+        run: |
+          sqlfluff lint models --format junit > sqlfluff_lint_report.xml || true
+
+      - name: Upload Coverage and Lint Reports to Codecov
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: sqlfluff_lint_report.json
+          files: |
+            sqlfluff_lint_report.xml
+            coverage.xml
+          flags: linting
           fail_ci_if_error: true
