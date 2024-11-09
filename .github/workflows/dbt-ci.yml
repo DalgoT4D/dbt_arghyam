@@ -1,12 +1,11 @@
 name: Our first dbt PR job
-#updates
 on:
   pull_request:
     types:
-    - opened
-    - reopened
-    - synchronize
-    - ready_for_review
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
   push:
     branches:
       - '!main'
@@ -30,14 +29,16 @@ jobs:
       - name: Install dbt dependencies
         run: dbt deps
 
-      # - name: dbt build
-      #   run: dbt build --full-refresh --profiles-dir ./
-      #   env:
-      #     POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
-      #     POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-      #     POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-      #     POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-  
+      # Lint models and save output to XML
       - name: Lint models
-        run: "sqlfluff lint models"
-        
+        run: "sqlfluff lint models --format xml > sqlfluff_coverage.xml"
+
+      # Upload SQLFluff report to Codecov
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: sqlfluff_coverage.xml
+          flags: sqlfluff
+          name: "SQLFluff Lint Coverage"
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
