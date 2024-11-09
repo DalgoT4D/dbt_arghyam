@@ -93,11 +93,11 @@ models:
         tests:
           - not_null
       - name: ward_name
-        description: "Name of the ward"
+        description: "Name of the wards"
         tests:
           - not_null
       - name: block_name
-        description: "Name of the block"
+        description: "Name of the blocks"
         tests:
           - not_null
       - name: district_name
