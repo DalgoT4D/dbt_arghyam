@@ -38,8 +38,10 @@ jobs:
         run: ls -R models
 
       # Lint models with JSON output (if above command succeeds)
-      - name: Lint models with JSON output
-        run: sqlfluff lint models --format json > sqlfluff_coverage.json
+     - name: Run SQLFluff Lint with JSON Output
+       run: |
+        sqlfluff lint models > output.txt
+        cat output.txt | jq '.' > sqlfluff_coverage.json
 
       # Upload JSON report to Codecov
       - name: Upload to Codecov
