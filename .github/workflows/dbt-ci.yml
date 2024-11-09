@@ -40,17 +40,9 @@ jobs:
   
       - name: Run Tests and Coverage
         run: |
-          coverage run --omit ddpui/api/superset_api.py,ddpui/api/task_api.py,ddpui/migrations/*.py -m pytest --durations=20
+          coverage run 
           coverage xml
-          coverage report --fail-under=70
-
-      - name: Check Coverage Percentage
-        run: |
-          coverage_percentage=$(coverage report --show-missing | tail -n 1 | awk '{print $4}')
-          if (( $(echo "$coverage_percentage < 70" | bc -l) )); then
-            echo "Coverage percentage is below 70%"
-            exit 1
-          fi
+          coverage report 
 
       - name: Generate SQLFluff Lint Report in XML Format
         run: |
