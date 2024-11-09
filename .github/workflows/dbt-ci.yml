@@ -29,29 +29,28 @@ jobs:
       - name: Install dbt dependencies
         run: dbt deps
 
-      # Lint models and save output to XML
-      - name: Lint models
-        run: "sqlfluff lint models --format json > sqlfluff_coverage.json"
+      # Verify sqlfluff is installed
+      - name: Verify SQLFluff installation
+        run: sqlfluff --version
 
-      - name: Convert JSON to XML
-        run: |
-          python -c "
-          import json, dicttoxml
-          with open('sqlfluff_coverage.json') as json_file:
-              data = json.load(json_file)
-          xml_data = dicttoxml.dicttoxml(data, custom_root='coverage', attr_type=False)
-          with open('sqlfluff_coverage.xml', 'wb') as xml_file:
-              xml_file.write(xml_data)
-          "
-        shell: bash
+      # List models directory to check if files are accessible
+      - name: List models directory
+        run: ls -R models
 
+      # Lint models with SQLFluff without formatting
+      - name: Lint models without formatting
+        run: sqlfluff lint models
+
+      # Lint models with JSON output (if above command succeeds)
+      - name: Lint models with JSON output
+        run: sqlfluff lint models --format json > sqlfluff_coverage.json
+
+      # Upload JSON report to Codecov
       - name: Upload to Codecov
         uses: codecov/codecov-action@v2
         with:
-          files: sqlfluff_coverage.xml
+          files: sqlfluff_coverage.json
           flags: sqlfluff
           name: "SQLFluff Lint Coverage"
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
-
-
