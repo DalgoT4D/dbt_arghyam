@@ -1,12 +1,12 @@
 name: Our first dbt PR job
-
+#updates
 on:
   pull_request:
     types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
   push:
     branches:
       - '!main'
@@ -30,28 +30,13 @@ jobs:
       - name: Install dbt dependencies
         run: dbt deps
 
-      # Verify SQLFluff installation
-      - name: Verify SQLFluff Installation
-        run: sqlfluff --version
-
-      # List models directory to confirm accessibility of files
-      - name: List models directory
-        run: ls -R models
-
-      # Run SQLFluff Lint in human-readable format as a dry run
-      - name: Run SQLFluff Lint (dry run)
-        run: sqlfluff lint models --dialect postgres --disregard-sqlfluffignores -v
-
-      # Run SQLFluff Lint with JSON output if dry run succeeds
-      - name: Run SQLFluff Lint with JSON Output
-        run: sqlfluff lint models --dialect postgres --format json --disregard-sqlfluffignores > sqlfluff_coverage.json
-
-      # Upload JSON report to Codecov
-      - name: Upload to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          files: sqlfluff_coverage.json
-          flags: sqlfluff
-          name: "SQLFluff Lint Coverage"
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
+      # - name: dbt build
+      #   run: dbt build --full-refresh --profiles-dir ./
+      #   env:
+      #     POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
+      #     POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      #     POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      #     POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+  
+      - name: Lint models
+        run: "sqlfluff lint models -f github-annotation"
