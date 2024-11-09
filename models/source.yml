@@ -255,7 +255,7 @@ models:
         description: "Username of the person who submitted the water quality testing form"
         tests:
           - not_null
-      - name: parameter
+      - name: पैरामीटर
         description: "Parameter being tested in the water quality testing"
         tests:
           - not_null
