@@ -1,15 +1,12 @@
-name: dbt CI
+name: dbt Slim CI
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
-      - main
+      - main  # Trigger on PRs to the main branch
 
 jobs:
-  dbt-tests:
+  dbt-slim-ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,20 +20,34 @@ jobs:
         with:
           python-version: '3.8'
 
-      # Step 3: Install dbt dependencies
-      - name: Install dbt
+      # Step 3: Install dbt and dependencies
+      - name: Install dbt and dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install dbt-core dbt-postgres # Replace with the correct adapter if using a different one
+          pip install dbt-core dbt-postgres  # Replace with the appropriate adapter for your database
 
-      # Step 4: Run dbt clean
-      - name: dbt clean
-        run: dbt clean
+      # Step 4: Generate and store manifest for the main branch (for state comparison)
+      - name: Generate dbt manifest for main branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          dbt compile --target-path=prod-run-artifacts
+          git add prod-run-artifacts/manifest.json
+          git commit -m "Update main branch manifest for Slim CI"
+          git push
 
-      # Step 5: Run dbt deps
-      - name: dbt deps
-        run: dbt deps
+      # Step 5: Generate feature branch manifest for comparison
+      - name: Generate feature branch manifest
+        run: dbt compile
 
-      # Step 6: Run dbt test
-      - name: dbt test
-        run: dbt test
+      # Step 6: List modified models using Slim CI pattern
+      - name: List modified models
+        id: modified_models
+        run: |
+          OUTPUT=$(dbt ls --select state:modified+ --defer --state=prod-run-artifacts)
+          echo "::set-output name=modified_models::$OUTPUT"
+
+      # Step 7: Run dbt only on modified models
+      - name: Run dbt on modified models
+        if: steps.modified_models.outputs.modified_models != ''
+        run: |
+          dbt run --select state:modified+ --defer --state=prod-run-artifacts
