@@ -5,9 +5,9 @@
 --    In this code, there are five CTEs defined: `water_stats`, `quality_stats`, `wimc_stats`,`jal_chaupal_stats` and `tariff_collection` .
 
 --    - `water_stats`: This CTE calculates the total days each user had water (total_days_with_water) and the total days recorded (water or no water) within the last 180 days. It references log_book_form_responses_fact to get data on water days and non-water days.
-     
+
 --    - `quality_stats`: This CTE finds the most recent date of water quality testing for each user (last_test_date), assessing the recency of quality checks. It references water_quality_testing_form_responses_fact.
-   
+
 --    - `wimc_stats`: This CTE counts the number of WIMC meetings attended by each user in the last 6 months.It uses the wimc_meeting_form_responses_fact table for meeting records.
 
 --    - `jal_chaupal_stats`: This CTE counts the Jal Chaupal meetings attended by each user in the last 6 months.It uses the "jal_chaupal_form_responses_fact" table for these records.
@@ -21,7 +21,7 @@
 --wimc_meeting_score & jal_chaupal_score: 1 for 4+ meetings, 0.5 for 2-4, else 0.
 --water_tariff_collection_score: 1 if 50%+ of target collected, 0.5 for 25-49%, else 0.
 --total_score: Sum of all individual scores.
-   
+
 -- In summary,  This query aggregates and scores data on water availability, quality, community involvement, and financial 
 --contributions for each user over the past 6 months, creating a composite total_score to reflect user engagement and service status.
 
@@ -32,21 +32,21 @@ WITH water_stats AS (
         username,
         SUM(days_with_water) AS total_days_with_water,
         SUM(days_with_water + days_no_water) AS total_days
-    FROM 
+    FROM
         {{ ref('log_book_form_responses_fact') }}
-    WHERE 
+    WHERE
         meeting_date >= CURRENT_DATE - INTERVAL '180 days'
-    GROUP BY 
+    GROUP BY
         username
 ),
 
 quality_stats AS (
-    SELECT 
+    SELECT
         username,
         MAX(meeting_date) AS last_test_date
-    FROM 
+    FROM
         {{ ref('water_quality_testing_form_responses_fact') }}
-    GROUP BY 
+    GROUP BY
         username
 ),
 
@@ -54,11 +54,11 @@ wimc_stats AS (
     SELECT
         username,
         COUNT(meeting_date) AS wimc_meeting_count
-    FROM 
+    FROM
         {{ ref('wimc_meeting_form_responses_fact') }}
-    WHERE 
+    WHERE
         meeting_date >= CURRENT_DATE - INTERVAL '6 months'
-    GROUP BY 
+    GROUP BY
         username
 ),
 
@@ -66,11 +66,11 @@ jal_chaupal_stats AS (
     SELECT
         username,
         COUNT(meeting_date) AS jal_chaupal_count
-    FROM 
+    FROM
         {{ ref('jal_chaupal_form_responses_fact') }}
-    WHERE 
+    WHERE
         meeting_date >= CURRENT_DATE - INTERVAL '6 months'
-    GROUP BY 
+    GROUP BY
         username
 ),
 
@@ -79,81 +79,91 @@ tariff_collection AS (
         username,
         SUM(total_amount_paid) AS total_collected,
         SUM(total_amount_due) AS total_target
-    FROM 
-        {{ ref('demand_collection') }} -- replace with your table name for tariff collection
-    WHERE 
+    FROM
+        -- replace with your table name for tariff collection
+        {{ ref('demand_collection') }}
+    WHERE
         meeting_date >= CURRENT_DATE - INTERVAL '6 months'
-    GROUP BY 
+    GROUP BY
         username
 )
 
-SELECT 
+SELECT
     ws.username,
     ws.total_days_with_water,
     ws.total_days,
-    (ws.total_days_with_water::FLOAT / ws.total_days) * 100 AS percent_days_with_water,
-    
-    CASE 
+    (ws.total_days_with_water::FLOAT / ws.total_days)
+    * 100 AS percent_days_with_water,
+
+    CASE
         WHEN (ws.total_days_with_water::FLOAT / ws.total_days) >= 0.9 THEN 1
         WHEN (ws.total_days_with_water::FLOAT / ws.total_days) >= 0.6 THEN 0.5
         ELSE 0
     END AS water_availability_score,
 
-    CASE 
+    CASE
         WHEN qs.last_test_date >= CURRENT_DATE - INTERVAL '6 months' THEN 1
         ELSE 0
     END AS water_quality_score,
-    
-    CASE 
+
+    CASE
         WHEN wimc.wimc_meeting_count > 4 THEN 1
         WHEN wimc.wimc_meeting_count BETWEEN 2 AND 4 THEN 0.5
         ELSE 0
     END AS wimc_meeting_score,
 
-    CASE 
+    CASE
         WHEN jc.jal_chaupal_count > 4 THEN 1
         WHEN jc.jal_chaupal_count BETWEEN 2 AND 4 THEN 0.5
         ELSE 0
     END AS jal_chaupal_score,
 
-    CASE 
-        WHEN tc.total_collected::FLOAT / NULLIF(tc.total_target, 0) >= 0.5 THEN 1
-        WHEN tc.total_collected::FLOAT / NULLIF(tc.total_target, 0) >= 0.25 THEN 0.5
+    CASE
+        WHEN
+            tc.total_collected::FLOAT / NULLIF(tc.total_target, 0) >= 0.5
+            THEN 1
+        WHEN
+            tc.total_collected::FLOAT / NULLIF(tc.total_target, 0) >= 0.25
+            THEN 0.5
         ELSE 0
     END AS water_tariff_collection_score,
 
-    (CASE 
+    (CASE
         WHEN (ws.total_days_with_water::FLOAT / ws.total_days) >= 0.9 THEN 1
         WHEN (ws.total_days_with_water::FLOAT / ws.total_days) >= 0.6 THEN 0.5
         ELSE 0
     END
-    + CASE 
+    + CASE
         WHEN qs.last_test_date >= CURRENT_DATE - INTERVAL '6 months' THEN 1
         ELSE 0
     END
-    + CASE 
+    + CASE
         WHEN wimc.wimc_meeting_count > 4 THEN 1
         WHEN wimc.wimc_meeting_count BETWEEN 2 AND 4 THEN 0.5
         ELSE 0
     END
-    + CASE 
+    + CASE
         WHEN jc.jal_chaupal_count > 4 THEN 1
         WHEN jc.jal_chaupal_count BETWEEN 2 AND 4 THEN 0.5
         ELSE 0
     END
-    + CASE 
-        WHEN tc.total_collected::FLOAT / NULLIF(tc.total_target, 0) >= 0.5 THEN 1
-        WHEN tc.total_collected::FLOAT / NULLIF(tc.total_target, 0) >= 0.25 THEN 0.5
+    + CASE
+        WHEN
+            tc.total_collected::FLOAT / NULLIF(tc.total_target, 0) >= 0.5
+            THEN 1
+        WHEN
+            tc.total_collected::FLOAT / NULLIF(tc.total_target, 0) >= 0.25
+            THEN 0.5
         ELSE 0
     END) AS total_score
 
-FROM 
+FROM
     water_stats AS ws
-LEFT JOIN 
+LEFT JOIN
     quality_stats AS qs ON ws.username = qs.username
-LEFT JOIN 
+LEFT JOIN
     wimc_stats AS wimc ON ws.username = wimc.username
-LEFT JOIN 
+LEFT JOIN
     jal_chaupal_stats AS jc ON ws.username = jc.username
-LEFT JOIN 
+LEFT JOIN
     tariff_collection AS tc ON ws.username = tc.username

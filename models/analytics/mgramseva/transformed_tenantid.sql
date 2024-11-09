@@ -20,7 +20,8 @@ WITH ward AS (
             WHEN '7' THEN 'h'
             WHEN '8' THEN 'i'
             WHEN '9' THEN 'j'
-            ELSE SUBSTRING(log.ward_name, 2, 1) -- fallback to original if no match
+            -- fallback to original if no match
+            ELSE SUBSTRING(log.ward_name, 2, 1)
         END
         || CASE SUBSTRING(log.ward_name, 3, 1) -- get the second digit after 'W'
             WHEN '0' THEN 'a'
@@ -33,16 +34,19 @@ WITH ward AS (
             WHEN '7' THEN 'h'
             WHEN '8' THEN 'i'
             WHEN '9' THEN 'j'
-            ELSE SUBSTRING(log.ward_name, 3, 1) -- fallback to original if no match
+            -- fallback to original if no match
+            ELSE SUBSTRING(log.ward_name, 3, 1)
         END AS ward_code
-    FROM 
-        intermediate_analytics.log_book_form_responses_fact  AS log
+    FROM
+        intermediate_analytics.log_book_form_responses_fact AS log
 ),
 
 ranked_ward AS (
     SELECT
-        w.*, 
-        ROW_NUMBER() OVER (PARTITION BY w.username ORDER BY w.created_at_timestamp DESC) AS row_num
+        w.*,
+        ROW_NUMBER()
+            OVER (PARTITION BY w.username ORDER BY w.created_at_timestamp DESC)
+        AS row_num
     FROM ward AS w
 )
 
