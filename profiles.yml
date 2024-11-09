@@ -1,12 +1,12 @@
 dbt_arghyam:
   outputs:
-    intermediate:
+    dev:
       dbname: "{{ env_var('POSTGRES_DBNAME') }}"
       host: "{{ env_var('POSTGRES_HOST') }}"
       password: "{{ env_var('POSTGRES_PASSWORD') }}"
       port: 5432
-      schema: intermediate
+      schema: dev
       threads: 8
       type: postgres
       user: "{{ env_var('POSTGRES_USER') }}"
-  target: intermediate
+  target: dev
