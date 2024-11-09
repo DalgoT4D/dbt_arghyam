@@ -41,4 +41,4 @@ jobs:
       - name: Lint models
         run: |
           sqlfluff lint models || echo "::warning::SQLFluff found linting issues"
-        continue-on-error: true 
+        continue-on-error: false
