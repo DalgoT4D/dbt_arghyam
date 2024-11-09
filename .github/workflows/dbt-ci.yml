@@ -1,12 +1,12 @@
 name: Our first dbt PR job
-
+#updates
 on:
   pull_request:
     types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
+    - opened
+    - reopened
+    - synchronize
+    - ready_for_review
   push:
     branches:
       - '!main'
@@ -38,16 +38,6 @@ jobs:
       #     POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
       #     POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
   
-      - name: Generate SQLFluff Lint Report in XML Format
-        run: |
-          sqlfluff lint models --format junit > sqlfluff_lint_report.xml || true
-
-      - name: Upload Coverage and Lint Reports to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: |
-            sqlfluff_lint_report.xml
-            coverage.xml
-          flags: linting
-          fail_ci_if_error: true
+      - name: Lint models
+        run: "sqlfluff lint models"
+        
