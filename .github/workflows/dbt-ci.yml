@@ -42,11 +42,14 @@ jobs:
       # Run dbt clean
       - name: dbt clean
         run: dbt clean
+        continue-on-error: false  # Fail if `dbt clean` fails
 
       # Run dbt deps
       - name: dbt deps
         run: dbt deps
+        continue-on-error: false  # Fail if `dbt deps` fails
 
       # Run dbt test
       - name: dbt test
         run: dbt test
+        continue-on-error: false  # Fail if `dbt test` fails
