@@ -28,8 +28,7 @@ WITH expense AS (
         tenantid, 
         TO_CHAR(todate, 'Month'), 
         todate::date 
-),
-
+)
 final AS (
     SELECT 
         COALESCE(d.tenantid, e.tenantid) AS tenantid,  
