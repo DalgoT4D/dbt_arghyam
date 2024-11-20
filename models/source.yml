@@ -339,7 +339,7 @@ models:
           - not_null  
           - dbt_expectations.expect_column_values_to_be_of_type:
               column_type: date
-      - name: reporting_month
+      - name: "माह"
         description: "Month of the reporting period"
         tests:
           - not_null  
