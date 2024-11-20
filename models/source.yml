@@ -339,7 +339,7 @@ models:
           - not_null  
           - dbt_expectations.expect_column_values_to_be_of_type:
               column_type: date
-      - name: "माह"
+      - name: reporting_month
         description: "Month of the reporting period"
         tests:
           - not_null  
@@ -381,7 +381,7 @@ models:
           - not_null  
           - dbt_expectations.expect_column_values_to_be_of_type:
               column_type: numeric  
-      - name: reporting_month_number
+      - name: "माह"
         description: "Added the numbers to months for ordering in charts"
         tests:
           - not_null              

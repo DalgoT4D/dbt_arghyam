@@ -68,7 +68,7 @@ SELECT
         username,
         reporting_month_number AS "माह",
         reporting_year AS "वर्ष",
-        MAX(total_expenditure) AS totaldb_expenditure,
+        MAX(total_expenditure) AS total_expenditure,
         SUM(total_amount_paid) AS total_amount_paid
     FROM 
         final
