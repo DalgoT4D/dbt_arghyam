@@ -63,7 +63,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'PH' AS parameter,
+        'पीएच' AS parameter,
         ph_count AS last_test_done_value,
         '6.5-8.5' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
@@ -80,7 +80,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'Total Hardness' AS parameter,
+        'टोटल हार्डनेस ' AS parameter,
         hardness AS last_test_done_value,
         '< 600' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
@@ -97,7 +97,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'Total Alkalnity' AS parameter,
+        'टोटल एल्कॉनिटी' AS parameter,
         total_alkalinity AS last_test_done_value,
         '< 600' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
@@ -114,7 +114,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'Chloride' AS parameter,
+        'क्लोराइड' AS parameter,
         chloride_count AS last_test_done_value,
         '< 1000' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
@@ -131,7 +131,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'Nitrate' AS parameter,
+        'Nनाइट्रेट' AS parameter,
         nitrate_count AS last_test_done_value,
         '< 45' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
@@ -148,7 +148,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'Arsenic' AS parameter,
+        'आर्सेनिक ' AS parameter,
         arsenic_count AS last_test_done_value,
         '< 0.01' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
@@ -165,7 +165,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'Fluoride' AS parameter,
+        'फ्लोराइड' AS parameter,
         fluoride_count AS last_test_done_value,
         '< 1.5' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
@@ -182,7 +182,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'Iron' AS parameter,
+        'आयरन ' AS parameter,
         iron_count AS last_test_done_value,
         '< 1' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
@@ -199,7 +199,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'Bacteriological Contamination' AS parameter,
+        'बैक्टीरियोलॉजिकल संदूषण' AS parameter,
         CASE 
             WHEN bacterial_contamination = 'Yes' THEN 1
             ELSE 0
@@ -218,7 +218,7 @@ SELECT
     activity_id,
     username,
     meeting_date,
-    parameter as "पैरामीटर",
+    "parameter" as "पैरामीटर",
     last_test_done_value as "अंतिम परीक्षण किया गया मान",
     permissible_limits as "अनुमेय सीमा",
     created_at_timestamp,

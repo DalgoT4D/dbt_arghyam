@@ -28,38 +28,50 @@ WITH expense AS (
         tenantid, 
         TO_CHAR(todate, 'Month'), 
         todate::date 
+),
+
+final AS (
+    SELECT 
+        COALESCE(d.tenantid, e.tenantid) AS tenantid,  
+        COALESCE(d.username, 'Unknown') AS username,  
+        COALESCE(e.total_expenditure, 0) AS total_expenditure,  
+        COALESCE(DATE(d."meeting_date"), e.meeting_date) AS meeting_date, 
+        COALESCE(d.reporting_year, EXTRACT(YEAR FROM e.meeting_date)) AS reporting_year, 
+        COALESCE(d.reporting_month, e.month_name) AS reporting_month,
+        CASE
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'January  ' THEN '01 - January'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'February ' THEN '02 - February'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'March    ' THEN '03 - March'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'April    ' THEN '04 - April'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'May      ' THEN '05 - May'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'June     ' THEN '06 - June'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'July     ' THEN '07 - July'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'August   ' THEN '08 - August'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'September' THEN '09 - September'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'October  ' THEN '10 - October'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'November ' THEN '11 - November'
+            WHEN COALESCE(d.reporting_month, e.month_name) = 'December ' THEN '12 - December'
+            ELSE 'Unknown'
+        END AS reporting_month_number,
+        COALESCE(d.total_amount_paid, 0) AS total_amount_paid  
+    FROM 
+        {{ref('demand_collection')}} d
+    FULL OUTER JOIN 
+        expense e
+    ON 
+        d.tenantid = e.tenantid AND
+        DATE(d."meeting_date") = e.meeting_date
 )
 
 SELECT 
-    COALESCE(d.tenantid, e.tenantid) AS tenantid,  
-    COALESCE(d.username, 'Unknown') AS username,  
-    COALESCE(e.total_expenditure, 0) AS total_expenditure,  
-    COALESCE(DATE(d."meeting_date"), e.meeting_date) AS meeting_date, 
-    COALESCE(d.reporting_year, EXTRACT(YEAR FROM e.meeting_date)) AS reporting_year, 
-    COALESCE(d.reporting_month, e.month_name) AS reporting_month,
-    -- Case statement to derive month_number from reporting_month or month_name
-    CASE
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'January  ' THEN '01 - January'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'February ' THEN '02 - February'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'March    ' THEN '03 - March'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'April    ' THEN '04 - April'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'May      ' THEN '05 - May'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'June     ' THEN '06 - June'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'July     ' THEN '07 - July'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'August   ' THEN '08 - August'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'September' THEN '09 - September'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'October  ' THEN '10 - October'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'November ' THEN '11 - November'
-        WHEN COALESCE(d.reporting_month, e.month_name) = 'December ' THEN '12 - December'
-        ELSE 'Unknown'
-    END AS reporting_month_number,
-    COALESCE(d.total_amount_paid, 0) AS total_amount_paid  
-FROM 
-    {{ref('demand_collection')}} d
-FULL OUTER JOIN 
-    expense e
-ON 
-    d.tenantid = e.tenantid AND
-    DATE(d."meeting_date") = e.meeting_date
-ORDER BY 
-    COALESCE(d.tenantid, e.tenantid)
+        tenantid,
+        username,
+        reporting_month_number AS "माह",
+        reporting_year AS "वर्ष",
+        MAX(total_expenditure) AS totaldb_expenditure,
+        SUM(total_amount_paid) AS total_amount_paid
+    FROM 
+        final
+    GROUP BY 
+        tenantid, username, reporting_month_number, reporting_year
+
