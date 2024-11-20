@@ -5,11 +5,11 @@
 --    In this code, there is just one CTEs defined: `expense`.
 
 --    - `expenditure`: This CTE (expense) aggregates the total expenditure for each tenant (tenantid) by date and month.
-     
+
 -- 3. Final Query: This query joins data from the "demand_collection" and expense tables based on tenant ID and date using a full outer join
 
 -- In summary, From this query we get a table that has combined data from the tables "demand_collection" and "tenantexpenses", It shows data of the total amount spent 
-   --  by tenants on bills along with the month, year , total amount collected(total amount paid) and usernames associated with those tenantids.
+--  by tenants on bills along with the month, year , total amount collected(total amount paid) and usernames associated with those tenantids.
 
 -- Read about full outer join here ->>>>> https://www.tutorialspoint.com/sql/sql-full-joins.htm
 
@@ -17,8 +17,9 @@
 {{ config(materialized='table') }}
 
 WITH expense AS (
-    SELECT 
-        tenantid, 
+    SELECT
+        tenantid,
+        todate::date AS meeting_date,
         TO_CHAR(todate, 'Month') AS month_name,
         todate::date AS meeting_date, 
         COALESCE(SUM(totalexpenditure), 0) AS total_expenditure  
