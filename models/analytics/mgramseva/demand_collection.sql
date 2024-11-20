@@ -5,18 +5,18 @@
 --    In this code, there are four CTEs defined: `table_p`, `taple_d`, `water_connections` and `final`.
 
 --    - `table_p`: It essentially aggregates the total payment made by each consumer for each tenant on each specific day and month.
-     
+
 --    - `table_d`: This query aggregates the total demand amount for each consumer and tenant on a daily and monthly basis.
-   
+
 --    - `water_connection`: This query combines payment and demand data for each consumercode and tenantid, ensuring all records are included even if they don't have corresponding entries in both tables.
 
 --    - `final`: This query links the water connection data from water_connections with additional metadata (status) from the waterconnections table, combining and returning data based on the consumercode.
 
 -- 3. Final Query: This would result in a final dataset that includes water connection details, financial amounts (paid and due), tenant names, and usernames. Usernames are attached using the table "user_tenantid" 
-   -- to the table created by `final` CTE using LEFT JOIN.
+-- to the table created by `final` CTE using LEFT JOIN.
 
 -- In summary, this query combines data from two tables, `paymentdetailes` and `demanddeatils`, using a full outer join based on a common column. 
-   -- After we get a table with the above combinations, we add few more details such as status and username using other tables.
+-- After we get a table with the above combinations, we add few more details such as status and username using other tables.
 
 -- Read about left join here ->>>>> https://www.tutorialspoint.com/sql/sql-full-joins.htm
 
@@ -64,7 +64,7 @@ water_connections AS (
         AND table_p.reporting_month = table_d.reporting_month
         AND table_p.reporting_year = table_d.reporting_year
                 AND table_p.meeting_date = table_d.meeting_date
-
+         
 ),
 
 final AS (
@@ -97,3 +97,4 @@ FROM final AS f
 LEFT JOIN {{ref('transformed_tenantid')}} AS u
     ON f.tenantid = u.tenantid
 ORDER BY f.tenantid, "माह"
+
