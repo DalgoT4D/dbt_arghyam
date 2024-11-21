@@ -10,3 +10,5 @@ dbt_arghyam:
       type: postgres
       user: "{{ env_var('POSTGRES_USER') }}"
   target: dev
+
+
