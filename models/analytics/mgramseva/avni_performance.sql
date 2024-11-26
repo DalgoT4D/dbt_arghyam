@@ -116,25 +116,25 @@ SELECT
         WHEN (ws.total_days_with_water::FLOAT / ws.total_days) >= 0.9 THEN 1
         WHEN (ws.total_days_with_water::FLOAT / ws.total_days) >= 0.6 THEN 0.5
         ELSE 0
-    END AS "जल_उपलब्धता_स्कोर",
+    END AS "जल_उपलब्धता",
 
     CASE
         WHEN qs.last_test_date >= CURRENT_DATE - INTERVAL '6 months' THEN 1
         ELSE 0
-    END AS "जल_गुणवत्ता_स्कोर",
+    END AS "जल_गुणवत्ता",
 
     CASE
 
         WHEN wimc.wimc_meeting_count > 4 THEN 1
         WHEN wimc.wimc_meeting_count BETWEEN 2 AND 4 THEN 0.5
         ELSE 0
-    END AS "wimc_मीटिंग_स्कोर",
+    END AS "wimc_मीटिंग",
 
     CASE
         WHEN jc.jal_chaupal_count > 4 THEN 1
         WHEN jc.jal_chaupal_count BETWEEN 2 AND 4 THEN 0.5
         ELSE 0
-    END AS "जल_चौपाल_स्कोर",
+    END AS "जल_चौपाल",
 
     CASE
         WHEN
@@ -144,7 +144,7 @@ SELECT
             tc.total_collected::FLOAT / NULLIF(tc.total_target, 0) >= 0.25
             THEN 0.5
         ELSE 0
-    END AS "जल_टैरिफ_संग्रह_स्कोर",
+    END AS "जल_टैरिफ_संग्रह",
 
     (CASE
         WHEN (ws.total_days_with_water::FLOAT / ws.total_days) >= 0.9 THEN 1
