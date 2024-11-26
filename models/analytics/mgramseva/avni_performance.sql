@@ -108,7 +108,7 @@ tariff_collection AS (
 SELECT
     ws.username,
     ws.total_days,
-    COALESCE(ws.total_days_with_water, 0) AS "जल_आपूर्ति_औसत",
+    COALESCE(ws.total_days_with_water, 0) AS "जलापूर्ति_वाले_दिन",
     (ws.total_days_with_water::FLOAT / ws.total_days)
     * 100 AS percent_days_with_water,
 
