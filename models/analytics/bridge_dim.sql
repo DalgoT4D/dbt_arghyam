@@ -13,9 +13,9 @@ WITH extract_raw_data AS (
         json_extract_path_text(sub.location::json, 'District') AS district_name,
         json_extract_path_text(sub.location::json, 'Gram Panchayat') AS gp_name
     FROM {{ ref ('subjects_cdc') }} AS sub
-)
+),
 
-, transform_keys AS (
+transform_keys AS (
     SELECT 
         subjects_id,
         ward_name,
@@ -25,8 +25,8 @@ WITH extract_raw_data AS (
     FROM extract_raw_data
 )
 
-SELECT 
-    CAST( {{ dbt_utils.generate_surrogate_key(['subjects_id']) }} AS VARCHAR) AS id,
+SELECT
+    cast( {{ dbt_utils.generate_surrogate_key(['subjects_id']) }} AS varchar) AS id,
     subjects_id,
     ward_name,
     block_name,

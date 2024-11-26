@@ -255,7 +255,7 @@ models:
         description: "Username of the person who submitted the water quality testing form"
         tests:
           - not_null
-      - name: पैरामीटर
+      - name: "पैरामीटर"
         description: "Parameter being tested in the water quality testing"
         tests:
           - not_null
@@ -381,7 +381,7 @@ models:
           - not_null  
           - dbt_expectations.expect_column_values_to_be_of_type:
               column_type: numeric  
-      - name: reporting_month_number
+      - name: "माह"
         description: "Added the numbers to months for ordering in charts"
         tests:
           - not_null              
@@ -403,21 +403,15 @@ models:
           - not_null  
           - dbt_expectations.expect_column_values_to_be_of_type:
               column_type: numeric  
-      - name: meeting_date
-        description: "Date of the payment"
-        tests:
-          - not_null  
-          - dbt_expectations.expect_column_values_to_be_of_type:
-              column_type: date  
 
-      - name: reporting_year
+      - name: "वर्ष"
         description: "Year for which the reporting is done"
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_of_type:
               column_type: numeric
 
-      - name: reporting_month
+      - name: "माह"
         description: "Month for which the reporting is done"
         tests:
           - not_null 
@@ -441,7 +435,7 @@ models:
           - not_null
           - unique
 
-      - name: total_days_with_water
+      - name: "जल_आपूर्ति_औसत" 
         description: "Total days with water availability."
         tests:
           - not_null 
@@ -466,7 +460,7 @@ models:
                 min_value: 0  # (Optional)
                 max_value: 100 # (Optional)
 
-      - name: water_availability_score
+      - name: "जल_उपलब्धता_स्कोर"
         description: "Score for water availability."
         tests:
           - not_null
@@ -474,7 +468,7 @@ models:
                 min_value: 0  # (Optional)
                 max_value: 1 # (Optional)
 
-      - name: water_quality_score
+      - name: "जल_गुणवत्ता_स्कोर"
         description: "Score for water quality."
         tests:
           - not_null
@@ -482,7 +476,7 @@ models:
                 min_value: 0  # (Optional)
                 max_value: 1 # (Optional)
 
-      - name: wimc_meeting_score
+      - name: "wimc_मीटिंग_स्कोर"
         description: "Score for WIMC meetings."
         tests:
           - not_null
@@ -490,7 +484,7 @@ models:
                 min_value: 0  # (Optional)
                 max_value: 1 # (Optional)
 
-      - name: jal_chaupal_score
+      - name:  "जल_चौपाल_स्कोर"
         description: "Score for Jal Chaupal."
         tests:
           - not_null
@@ -498,7 +492,7 @@ models:
                 min_value: 0  # (Optional)
                 max_value: 1 # (Optional)
 
-      - name: water_tariff_collection_score
+      - name: "जल_टैरिफ_संग्रह_स्कोर"
         description: "Score for water tariff collection."
         tests:
           - not_null
@@ -506,10 +500,32 @@ models:
                 min_value: 0  # (Optional)
                 max_value: 1 # (Optional)
 
-      - name: total_score
+      - name: "कुल_स्कोर"
         description: "Total score aggregating different parameters."
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
                 min_value: 0  # (Optional)
                 max_value: 5 # (Optional)
+      
+      - name: "जल_गुणवत्ता_परीक्षण"
+        description: "Total number of times water quality testing was done."
+        tests:
+          - not_null
+
+      - name: "टैंक_सफाई_की_संख्या"
+        description: "Total number of times tank cleaning was done"
+        tests:
+          - not_null    
+
+      - name: "wimc_बैठक_की_संख्या"
+        description: "Total number of times WIMC meetings were held"
+        tests:
+          - not_null
+
+      - name: "जल_चौपाल_की_संख्या"
+        description: "Total number of times Jal chaupal was held"
+        tests:
+          - not_null
+
+       

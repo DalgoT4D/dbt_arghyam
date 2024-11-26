@@ -7,3 +7,5 @@ logs/
 .user.yml
 .vscode/
 .gitkeep
+creds.txt
+.profiles.yml

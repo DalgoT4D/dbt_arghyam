@@ -24,97 +24,92 @@
 {{ config(materialized='table') }}
 
 WITH table_p AS (
-    SELECT
-        consumercode,
+    SELECT 
+        consumercode, 
         tenantid,
-        TO_CHAR(paymentdate, 'YYYY-MM-DD') AS meeting_date,
-        TO_CHAR(paymentdate, 'Month') AS reporting_month,
+        TO_CHAR(paymentdate, 'YYYY-MM-DD') AS meeting_date, 
+        TO_CHAR(paymentdate, 'Month') AS reporting_month, 
+        EXTRACT(YEAR FROM paymentdate) AS reporting_year,
         SUM(totalpaymentpaid) AS amount_p
     FROM {{ ref('paymentdetails') }}
     GROUP BY
         consumercode,
         tenantid,
-        TO_CHAR(paymentdate, 'YYYY-MM-DD'),
-        TO_CHAR(paymentdate, 'Month')
-    ORDER BY consumercode, TO_CHAR(paymentdate, 'YYYY-MM-DD')
+        TO_CHAR(paymentdate, 'Month'),
+        EXTRACT(YEAR FROM paymentdate),
+        TO_CHAR(paymentdate, 'YYYY-MM-DD')
 ),
 
 table_d AS (
-    SELECT
-        consumercode,
+    SELECT 
+        consumercode, 
         tenantid,
-        TO_CHAR(demandtodate, 'YYYY-MM-DD') AS meeting_date,
-        TO_CHAR(demandtodate, 'Month') AS reporting_month,
+        TO_CHAR(demandtodate, 'YYYY-MM-DD') AS meeting_date, 
+        TO_CHAR(demandtodate, 'Month') AS reporting_month, 
+        EXTRACT(YEAR FROM demandtodate) AS reporting_year,
         SUM(demandamount) AS amount_d
     FROM {{ ref('demanddetails') }}
     GROUP BY
         consumercode,
         tenantid,
-        TO_CHAR(demandtodate, 'YYYY-MM-DD'),
-        TO_CHAR(demandtodate, 'Month')
-    ORDER BY consumercode, TO_CHAR(demandtodate, 'YYYY-MM-DD')
+        TO_CHAR(demandtodate, 'Month'),
+        EXTRACT(YEAR FROM demandtodate),
+        TO_CHAR(demandtodate, 'YYYY-MM-DD')
 ),
 
 water_connections AS (
-    SELECT
+    SELECT 
         TO_TIMESTAMP(
             COALESCE(table_d.meeting_date, table_p.meeting_date), 'YYYY-MM-DD'
-        )::date AS meeting_date,
+        )::date AS meeting_date, 
         COALESCE(table_d.consumercode, table_p.consumercode) AS consumercode,
-        -- Convert timestampz to date
-        COALESCE(table_d.tenantid, table_p.tenantid) AS tenantid,
+        COALESCE(table_d.tenantid, table_p.tenantid) AS tenantid, 
         COALESCE(
             table_d.reporting_month, table_p.reporting_month
-        ) AS reporting_month,
-        EXTRACT(
-            YEAR FROM TO_TIMESTAMP(
-                COALESCE(table_d.meeting_date, table_p.meeting_date),
-                'YYYY-MM-DD'
-            )
+        ) AS reporting_month, 
+        COALESCE(
+            table_d.reporting_year, table_p.reporting_year
         ) AS reporting_year,
-        COALESCE(amount_p, 0) AS total_amount_paid,
-        COALESCE(amount_d, 0) AS total_amount_due,
-        COALESCE(amount_p - amount_d, 0) AS total_advance,
-        COALESCE(amount_d - amount_p, 0) AS total_arrears
+        COALESCE(table_p.amount_p, 0) AS total_amount_paid, 
+        COALESCE(table_d.amount_d, 0) AS total_amount_due,
+        COALESCE(table_p.amount_p, 0) - COALESCE(table_d.amount_d, 0) AS total_advance,
+        COALESCE(table_d.amount_d, 0) - COALESCE(table_p.amount_p, 0) AS total_arrears
     FROM table_p
-    FULL OUTER JOIN table_d
+    FULL OUTER JOIN table_d 
         ON
-            table_p.consumercode = table_d.consumercode
+            table_p.consumercode = table_d.consumercode 
+            AND table_p.reporting_month = table_d.reporting_month
+            AND table_p.reporting_year = table_d.reporting_year
             AND table_p.meeting_date = table_d.meeting_date
-    ORDER BY consumercode, meeting_date
 ),
 
--- Join with another table based on consumerno
 final AS (
-    SELECT
+    SELECT 
         wc.*,
         w.status
-    FROM water_connections AS wc
+    FROM water_connections AS wc 
     LEFT JOIN {{ ref('waterconnections') }} AS w
         ON wc.consumercode = w.connectionno
-    ORDER BY wc.consumercode, wc.meeting_date
 )
 
--- Join on the month number
-SELECT
-    f.*,
+SELECT 
+    f.*, 
     COALESCE(u.username, 'No Username') AS username,
-    -- Case statement to derive month_number from reporting_month
     CASE
         WHEN f.reporting_month = 'January  ' THEN '01 - January'
         WHEN f.reporting_month = 'February ' THEN '02 - February'
         WHEN f.reporting_month = 'March    ' THEN '03 - March'
         WHEN f.reporting_month = 'April    ' THEN '04 - April'
         WHEN f.reporting_month = 'May      ' THEN '05 - May'
-        WHEN f.reporting_month = 'June     ' THEN '06 -  June'
+        WHEN f.reporting_month = 'June     ' THEN '06 - June'
         WHEN f.reporting_month = 'July     ' THEN '07 - July'
         WHEN f.reporting_month = 'August   ' THEN '08 - August'
         WHEN f.reporting_month = 'September' THEN '09 - September'
         WHEN f.reporting_month = 'October  ' THEN '10 - October'
         WHEN f.reporting_month = 'November ' THEN '11 - November'
         WHEN f.reporting_month = 'December ' THEN '12 - December'
-    END AS reporting_month_number
-FROM final AS f
+    END AS "माह"
+FROM final AS f 
 LEFT JOIN {{ ref('transformed_tenantid') }} AS u
     ON f.tenantid = u.tenantid
-ORDER BY f.tenantid
+ORDER BY f.tenantid, "माह"

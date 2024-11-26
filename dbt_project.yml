@@ -23,6 +23,11 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "target"
   - "dbt_packages"
 
+flags:
+  require_explicit_package_overrides_for_builtin_materializations: false  # Allow packages to override materializations
+
+
+
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
@@ -32,6 +37,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   dbt_arghyam:
+    +quote_columns: true
     pre-hook:
       - "CREATE SCHEMA IF NOT EXISTS analytics"
     analytics:

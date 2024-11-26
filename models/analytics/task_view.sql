@@ -15,7 +15,7 @@ pivoted AS (
     SELECT
         meeting_date::date,
         username,
-        EXTRACT(YEAR FROM meeting_date::timestamp) AS reporting_year,
+        EXTRACT(YEAR FROM meeting_date::timestamp) AS "वर्ष",
         CASE
             WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 1 THEN 'Jan'
             WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 2 THEN 'Feb'
