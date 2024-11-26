@@ -31,8 +31,13 @@ WITH table_p AS (
         TO_CHAR(paymentdate, 'Month') AS reporting_month, 
         EXTRACT(YEAR FROM paymentdate) AS reporting_year,
         SUM(totalpaymentpaid) AS amount_p
-    FROM {{ref('paymentdetails')}}
-    GROUP BY consumercode, tenantid, TO_CHAR(paymentdate, 'Month'), EXTRACT(YEAR FROM paymentdate), TO_CHAR(paymentdate, 'YYYY-MM-DD')
+    FROM {{ ref('paymentdetails') }}
+    GROUP BY
+        consumercode,
+        tenantid,
+        TO_CHAR(paymentdate, 'Month'),
+        EXTRACT(YEAR FROM paymentdate),
+        TO_CHAR(paymentdate, 'YYYY-MM-DD')
 ),
 
 table_d AS (
@@ -43,28 +48,39 @@ table_d AS (
         TO_CHAR(demandtodate, 'Month') AS reporting_month, 
         EXTRACT(YEAR FROM demandtodate) AS reporting_year,
         SUM(demandamount) AS amount_d
-    FROM {{ref('demanddetails')}}
-    GROUP BY consumercode, tenantid, TO_CHAR(demandtodate, 'Month'), EXTRACT(YEAR FROM demandtodate), TO_CHAR(demandtodate, 'YYYY-MM-DD')
+    FROM {{ ref('demanddetails') }}
+    GROUP BY
+        consumercode,
+        tenantid,
+        TO_CHAR(demandtodate, 'Month'),
+        EXTRACT(YEAR FROM demandtodate),
+        TO_CHAR(demandtodate, 'YYYY-MM-DD')
 ),
 
 water_connections AS (
     SELECT 
-        COALESCE(table_d.consumercode, table_p.consumercode) AS consumercode, 
-        COALESCE(table_d.tenantid, table_p.tenantid) AS tenantid,
-        TO_TIMESTAMP(COALESCE(table_d.meeting_date, table_p.meeting_date), 'YYYY-MM-DD')::date AS meeting_date, 
-        COALESCE(table_d.reporting_month, table_p.reporting_month) AS reporting_month, 
-        COALESCE(table_d.reporting_year, table_p.reporting_year) AS reporting_year,
-        COALESCE(amount_p, 0) AS total_amount_paid, 
-        COALESCE(amount_d, 0) AS total_amount_due,
-        COALESCE(amount_p, 0) - COALESCE(amount_d, 0) AS total_advance,
-        COALESCE(amount_d, 0) - COALESCE(amount_p, 0) AS total_arrears
+        TO_TIMESTAMP(
+            COALESCE(table_d.meeting_date, table_p.meeting_date), 'YYYY-MM-DD'
+        )::date AS meeting_date, 
+        COALESCE(table_d.consumercode, table_p.consumercode) AS consumercode,
+        COALESCE(table_d.tenantid, table_p.tenantid) AS tenantid, 
+        COALESCE(
+            table_d.reporting_month, table_p.reporting_month
+        ) AS reporting_month, 
+        COALESCE(
+            table_d.reporting_year, table_p.reporting_year
+        ) AS reporting_year,
+        COALESCE(table_p.amount_p, 0) AS total_amount_paid, 
+        COALESCE(table_d.amount_d, 0) AS total_amount_due,
+        COALESCE(table_p.amount_p, 0) - COALESCE(table_d.amount_d, 0) AS total_advance,
+        COALESCE(table_d.amount_d, 0) - COALESCE(table_p.amount_p, 0) AS total_arrears
     FROM table_p
     FULL OUTER JOIN table_d 
-        ON table_p.consumercode = table_d.consumercode 
-        AND table_p.reporting_month = table_d.reporting_month
-        AND table_p.reporting_year = table_d.reporting_year
-                AND table_p.meeting_date = table_d.meeting_date
-         
+        ON
+            table_p.consumercode = table_d.consumercode 
+            AND table_p.reporting_month = table_d.reporting_month
+            AND table_p.reporting_year = table_d.reporting_year
+            AND table_p.meeting_date = table_d.meeting_date
 ),
 
 final AS (
@@ -72,7 +88,7 @@ final AS (
         wc.*,
         w.status
     FROM water_connections AS wc 
-    LEFT JOIN {{ref('waterconnections')}} AS w
+    LEFT JOIN {{ ref('waterconnections') }} AS w
         ON wc.consumercode = w.connectionno
 )
 
@@ -94,7 +110,6 @@ SELECT
         WHEN f.reporting_month = 'December ' THEN '12 - December'
     END AS "माह"
 FROM final AS f 
-LEFT JOIN {{ref('transformed_tenantid')}} AS u
+LEFT JOIN {{ ref('transformed_tenantid') }} AS u
     ON f.tenantid = u.tenantid
 ORDER BY f.tenantid, "माह"
-

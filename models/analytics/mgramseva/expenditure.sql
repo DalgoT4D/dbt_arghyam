@@ -23,7 +23,7 @@ WITH expense AS (
         TO_CHAR(todate, 'Month') AS month_name,
         COALESCE(SUM(totalexpenditure), 0) AS total_expenditure  
     FROM 
-        {{ref('tenantexpenses')}} 
+        {{ ref('tenantexpenses') }} 
     GROUP BY 
         tenantid, 
         TO_CHAR(todate, 'Month'), 
@@ -55,22 +55,22 @@ final AS (
         END AS reporting_month_number,
         COALESCE(d.total_amount_paid, 0) AS total_amount_paid  
     FROM 
-        {{ref('demand_collection')}} d
+        {{ ref('demand_collection') }} AS d
     FULL OUTER JOIN 
-        expense e
-    ON 
-        d.tenantid = e.tenantid AND
-        DATE(d.meeting_date) = e.meeting_date
+        expense AS e
+        ON 
+            d.tenantid = e.tenantid
+            AND DATE(d.meeting_date) = e.meeting_date
 )
 
 SELECT 
-        tenantid,
-        username,
-        reporting_month_number AS "माह",
-        reporting_year AS "वर्ष",
-        MAX(total_expenditure) AS total_expenditure,
-        SUM(total_amount_paid) AS total_amount_paid
-    FROM 
-        final
-    GROUP BY 
-        tenantid, username, reporting_month_number, reporting_year
+    tenantid,
+    username,
+    reporting_month_number AS "माह",
+    reporting_year AS "वर्ष",
+    MAX(total_expenditure) AS total_expenditure,
+    SUM(total_amount_paid) AS total_amount_paid
+FROM 
+    final
+GROUP BY 
+    tenantid, username, reporting_month_number, reporting_year

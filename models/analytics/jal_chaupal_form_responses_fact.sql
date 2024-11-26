@@ -1,3 +1,5 @@
+{% set invocation_id = 'some_value' %}
+
 {{ 
     config(
         materialized='table',
@@ -19,60 +21,61 @@ jal_chaupal_raw_data AS (
         brd.block_name,
         brd.district_name,
         brd.gp_name,
-        act.activity_id AS activity_id
-    FROM {{ ref ('encounters_cdc') }} as enc
-    INNER JOIN {{ ref ('subjects_cdc') }} as sub ON enc.subject_id = sub.id
-    INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
-    INNER JOIN {{ ref ('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
-    WHERE enc.encounter_type = 'Jal Chaupal'
-    AND enc.observations != '{}'
+        act.activity_id 
+    FROM {{ ref('encounters_cdc') }} AS enc
+    INNER JOIN {{ ref('subjects_cdc') }} AS sub ON enc.subject_id = sub.id
+    INNER JOIN {{ ref('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
+    INNER JOIN {{ ref('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
+    WHERE 
+        enc.encounter_type = 'Jal Chaupal'
+        AND enc.observations != '{}'
 ), 
+
 extract_fields AS (
     SELECT
-        encounter_id,
-        activity_id,
-        username,
-        ward_name,
-        block_name,
-        district_name,
-        gp_name,
-        meeting_date,
+        raw_data.encounter_id,
+        raw_data.activity_id,
+        raw_data.username,
+        raw_data.ward_name,
+        raw_data.block_name,
+        raw_data.district_name,
+        raw_data.gp_name,
+        raw_data.meeting_date,
+        json_extract_path_text(raw_data.observations::json, 'How many women participants attended the meeting') AS num_women_participants,
+        json_extract_path_text(raw_data.observations::json, 'Select if any of the below personal attended') AS personal_attendees,
+        json_extract_path_text(raw_data.observations::json, 'Take picture of the Jal Chuapal proceedings') AS photo_proceedings,
+        json_extract_path_text(raw_data.observations::json, 'Take a picture of the Jal Chaupal when there is maximum attendance') AS photo_max_attendance,
+        json_extract_path_text(raw_data.observations::json, 'Remarks') AS remarks,
+        json_extract_path_text(raw_data.audit::json, 'Created at')::timestamp AS created_at_timestamp,
+        json_extract_path_text(raw_data.audit::json, 'Last modified at')::timestamp AS last_modified_timestamp,
         CASE
             WHEN json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') = '25 - 40' THEN 40
             WHEN json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') = 'More than 80' THEN 80
             WHEN json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') = '60 - 80' THEN 80
             WHEN json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') = 'Less than 25' THEN 25
             WHEN json_extract_path_text(raw_data.observations::json, 'How many participants attended the meeting') = '40 - 60' THEN 60
-            ELSE NULL
-        END AS num_participants,
-        json_extract_path_text(raw_data.observations::json, 'How many women participants attended the meeting') AS num_women_participants,
-        json_extract_path_text(raw_data.observations::json, 'Select if any of the below personal attended') AS personal_attendees,
-        json_extract_path_text(raw_data.observations::json, 'Take picture of the Jal Chuapal proceedings') AS photo_proceedings,
-        json_extract_path_text(raw_data.observations::json, 'Take a picture of the Jal Chaupal when there is maximum attendance') AS photo_max_attendance,
-        json_extract_path_text(raw_data.observations::json, 'Remarks') AS remarks,
-        CAST(json_extract_path_text(raw_data.audit::json, 'Created at') AS TIMESTAMP) AS created_at_timestamp,
-        CAST(json_extract_path_text(raw_data.audit::json, 'Last modified at') AS TIMESTAMP) AS last_modified_timestamp
+        END AS num_participants
     FROM jal_chaupal_raw_data AS raw_data
 )
 
 SELECT 
     encounter_id,
     meeting_date,
-    EXTRACT(MONTH FROM meeting_date::timestamp) AS reporting_month,
-    EXTRACT(YEAR FROM meeting_date::timestamp) AS reporting_year,
+    extract(MONTH FROM meeting_date::timestamp) AS reporting_month,
+    extract(YEAR FROM meeting_date::timestamp) AS reporting_year,
     CASE 
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 1 THEN 'Jan'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 2 THEN 'Feb'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 3 THEN 'Mar'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 4 THEN 'Apr'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 5 THEN 'May'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 6 THEN 'Jun'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 7 THEN 'Jul'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 8 THEN 'Aug'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 9 THEN 'Sep'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 10 THEN 'Oct'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 11 THEN 'Nov'
-        WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 12 THEN 'Dec'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 1 THEN 'Jan'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 2 THEN 'Feb'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 3 THEN 'Mar'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 4 THEN 'Apr'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 5 THEN 'May'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 6 THEN 'Jun'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 7 THEN 'Jul'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 8 THEN 'Aug'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 9 THEN 'Sep'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 10 THEN 'Oct'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 11 THEN 'Nov'
+        WHEN extract(MONTH FROM meeting_date::timestamp) = 12 THEN 'Dec'
     END AS meeting_month,
     username,
     ward_name,
@@ -80,11 +83,9 @@ SELECT
     district_name,
     gp_name,
     num_participants,
-    CAST(num_women_participants AS INT) AS num_women_participants,
+    num_women_participants::int AS num_women_participants,
     remarks,
     ARRAY [photo_proceedings, photo_max_attendance] AS photos_jal_chaupal,
     created_at_timestamp,
-    -- last_modified_timestamp,
-    -- CURRENT_TIMESTAMP AS create_db_timestamp,
-    '{{ invocation_id }}' AS create_audit_id
+    '{{ invocation_id if invocation_id is defined else "No ID Provided" }}' AS create_audit_id
 FROM extract_fields

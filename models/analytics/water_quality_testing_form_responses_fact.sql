@@ -1,3 +1,5 @@
+{% set invocation_id = 'some_value' %}
+
 {{
     config(
         materialized='table',
@@ -19,38 +21,41 @@ wq_raw_data AS (
         brd.block_name,
         brd.district_name,
         brd.gp_name,
-        act.activity_id AS activity_id
-    FROM {{ ref ('encounters_cdc') }} AS enc
-    INNER JOIN {{ ref ('subjects_cdc') }} AS sub ON enc.subject_id = sub.id
-    INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
-    INNER JOIN {{ ref ('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
-    WHERE enc.encounter_type = 'Water Quality testing'
-    AND enc.observations != '{}'
-), 
+        act.activity_id 
+    FROM {{ ref('encounters_cdc') }} AS enc
+    INNER JOIN {{ ref('subjects_cdc') }} AS sub ON enc.subject_id = sub.id
+    INNER JOIN {{ ref('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
+    INNER JOIN {{ ref('activity_dim') }} AS act ON act.activity_type = enc.encounter_type
+    WHERE 
+        enc.encounter_type = 'Water Quality testing'
+        AND enc.observations != '{}'
+),
+
 extract_fields AS (
     SELECT
-        encounter_id,
-        activity_id,
-        ward_name,
-        block_name,
-        district_name,
-        gp_name,
-        username,
-        meeting_date,
-        CAST(CAST(observations AS JSONB) ->> 'Date of sample collection' AS DATE) AS date_sample_collection,
-        CAST(CAST(observations AS JSONB) ->> 'PH' AS FLOAT) AS ph_count,
-        CAST(CAST(observations AS JSONB) ->> 'Chloride' AS FLOAT) AS chloride_count,
-        CAST(CAST(observations AS JSONB) ->> 'Total Hardness' AS FLOAT) AS hardness,
-        CAST(CAST(observations AS JSONB) ->> 'Total Alkalnity' AS FLOAT) AS total_alkalinity,
-        CAST(CAST(observations AS JSONB) ->> 'Bacteriological Contamination' AS VARCHAR) AS bacterial_contamination,
-        CAST(CAST(observations AS JSONB) ->> 'Nitrate' AS FLOAT) AS nitrate_count,
-        CAST(CAST(observations AS JSONB) ->> 'Iron' AS FLOAT) AS iron_count,
-        CAST(CAST(observations AS JSONB) ->> 'Arsenic' AS FLOAT) AS arsenic_count,
-        CAST(CAST(observations AS JSONB) ->> 'Fluoride' AS FLOAT) AS fluoride_count,
-        CAST(json_extract_path_text(audit::json, 'Created at') AS TIMESTAMP) AS created_at_timestamp,
-        CAST(json_extract_path_text(audit::json, 'Last modified at') AS TIMESTAMP) AS last_modified_timestamp
+        raw_data.encounter_id,
+        raw_data.activity_id,
+        raw_data.ward_name,
+        raw_data.block_name,
+        raw_data.district_name,
+        raw_data.gp_name,
+        raw_data.username,
+        raw_data.meeting_date,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'Date of sample collection' AS DATE) AS date_sample_collection,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'PH' AS FLOAT) AS ph_count,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'Chloride' AS FLOAT) AS chloride_count,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'Total Hardness' AS FLOAT) AS hardness,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'Total Alkalnity' AS FLOAT) AS total_alkalinity,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'Bacteriological Contamination' AS VARCHAR) AS bacterial_contamination,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'Nitrate' AS FLOAT) AS nitrate_count,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'Iron' AS FLOAT) AS iron_count,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'Arsenic' AS FLOAT) AS arsenic_count,
+        CAST(CAST(raw_data.observations AS JSONB) ->> 'Fluoride' AS FLOAT) AS fluoride_count,
+        CAST(CAST(raw_data.audit AS JSONB) ->> 'Created at' AS TIMESTAMP) AS created_at_timestamp,
+        CAST(CAST(raw_data.audit AS JSONB) ->> 'Last modified at' AS TIMESTAMP) AS last_modified_timestamp
     FROM wq_raw_data AS raw_data
 ), 
+
 parameter_values AS (
     SELECT
         encounter_id,
@@ -131,7 +136,7 @@ parameter_values AS (
         username,
         created_at_timestamp,
         meeting_date,
-        'Nनाइट्रेट' AS parameter,
+        'नाइट्रेट' AS parameter,
         nitrate_count AS last_test_done_value,
         '< 45' AS permissible_limits,
         '{{ invocation_id }}' AS create_audit_id
@@ -218,9 +223,9 @@ SELECT
     activity_id,
     username,
     meeting_date,
-    "parameter" as "पैरामीटर",
-    last_test_done_value as "अंतिम परीक्षण किया गया मान",
-    permissible_limits as "अनुमेय सीमा",
+    parameter AS "पैरामीटर",
+    last_test_done_value AS "अंतिम परीक्षण किया गया मान",
+    permissible_limits AS "अनुमेय सीमा",
     created_at_timestamp,
     create_audit_id
 FROM parameter_values
