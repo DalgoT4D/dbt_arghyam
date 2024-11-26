@@ -35,7 +35,7 @@ final AS (
         COALESCE(d.tenantid, e.tenantid) AS tenantid,  
         COALESCE(d.username, 'Unknown') AS username,  
         COALESCE(e.total_expenditure, 0) AS total_expenditure,  
-        COALESCE(DATE(d.meeting_date), e.meeting_date) AS meeting_date, 
+        COALESCE(DATE(d.meeting_date + interval '1 DAY'), e.meeting_date) AS meeting_date, 
         COALESCE(d.reporting_year, EXTRACT(YEAR FROM e.meeting_date)) AS reporting_year, 
         COALESCE(d.reporting_month, e.month_name) AS reporting_month,
         CASE
@@ -60,7 +60,7 @@ final AS (
         expense AS e
         ON 
             d.tenantid = e.tenantid
-            AND DATE(d.meeting_date) = e.meeting_date
+            AND DATE(d.meeting_date + interval '1 DAY') = e.meeting_date
 )
 
 SELECT 
@@ -68,9 +68,10 @@ SELECT
     username,
     reporting_month_number AS "माह",
     reporting_year AS "वर्ष",
+    meeting_date,
     MAX(total_expenditure) AS total_expenditure,
     SUM(total_amount_paid) AS total_amount_paid
 FROM 
     final
 GROUP BY 
-    tenantid, username, reporting_month_number, reporting_year
+    tenantid, username, reporting_month_number, reporting_year, meeting_date
