@@ -1,0 +1,459 @@
+models:
+  - name: jal_chaupal_form_responses_fact
+    description: "Jal Chaupal Form Responses Fact Table"
+    columns:
+      - name: encounter_id
+        description: "Unique identifier for the Jal Chaupal"
+        tests:
+          - not_null
+      - name: meeting_date
+        description: "Date of the Jal Chaupal meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: reporting_year
+        description: "Year of the Jal Chaupal meeting"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who submitted the Jal Chaupal form"
+        tests:
+          - not_null
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: num_participants
+        description: "Number of participants in the Jal Chaupal meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: num_women_participants
+        description: "Number of women participants in the Jal Chaupal meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+
+  - name: log_book_form_responses_fact
+    description: "Log Book Form Responses Fact Table"
+    columns:
+      - name: meeting_date
+        description: "Date of the log book meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: reporting_year
+        description: "Year of the log book meeting"
+        tests:
+          - not_null
+      - name: reporting_month
+        description: "Month of the log book meeting"
+        tests:
+          - not_null
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who submitted the log book form"
+        tests:
+          - not_null
+      - name: days_no_water
+        description: "Number of days without water"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: total_days_in_month
+        description: "Total number of days in the month"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: days_with_water
+        description: "Number of days with water"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: met_27_days_goal
+        description: "Whether the 27 days goal was met (true/false)"
+        tests:
+          - not_null
+
+  - name: tank_cleaning_form_responses_fact
+    description: "Tank Cleaning Form Responses Fact Table"
+    columns:
+      - name: encounter_id
+        description: "Unique identifier for the tank cleaning encounter"
+        tests:
+          - not_null
+      - name: meeting_date
+        description: "Date of the tank cleaning meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who submitted the tank cleaning form"
+        tests:
+          - not_null
+      - name: created_at_timestamp
+        description: "Timestamp when the form was created"
+        tests:
+          - not_null
+
+  - name: water_quality_testing_form_responses_fact
+    description: "Water Quality Testing Form Responses Fact Table"
+    columns:
+      - name: encounter_id
+        description: "Unique identifier for the water quality testing encounter"
+        tests:
+          - not_null
+      - name: meeting_date
+        description: "Date of the water quality testing meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: activity_id
+        description: "Identifier for the water quality testing activity"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who submitted the water quality testing form"
+        tests:
+          - not_null
+      - name: "पैरामीटर"
+        description: "Parameter being tested in the water quality testing"
+        tests:
+          - not_null
+      - name: created_at_timestamp
+        description: "Timestamp when the form was created"
+        tests:
+          - not_null
+
+  - name: wimc_meeting_form_responses_fact
+    description: "WIMC Meeting Form Responses Fact Table"
+    columns:
+      - name: encounter_id
+        description: "Unique identifier for the WIMC meeting encounter"
+        tests:
+          - not_null
+      - name: meeting_date
+        description: "Date of the WIMC meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: reporting_month
+        description: "Month of the WIMC meeting"
+        tests:
+          - not_null
+      - name: reporting_year
+        description: "Year of the WIMC meeting"
+        tests:
+          - not_null
+      - name: username
+        description: "Username of the person who conducted the WIMC meeting"
+        tests:
+          - not_null
+      - name: num_members_attended
+        description: "Number of members who attended the WIMC meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: num_women_participants
+        description: "Number of women participants in the WIMC meeting"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: integer
+      - name: ward_name
+        description: "Name of the ward"
+        tests:
+          - not_null
+      - name: block_name
+        description: "Name of the block"
+        tests:
+          - not_null
+      - name: district_name
+        description: "Name of the district"
+        tests:
+          - not_null
+      - name: gp_name
+        description: "Name of the Gram Panchayat"
+        tests:
+          - not_null
+      - name: created_at_timestamp
+        description: "Timestamp when the form was created"
+        tests:
+          - not_null
+
+  - name: demand_collection
+    description: "Demand Collection Table"
+    columns:
+      - name: consumercode
+        description: "Consumer code associated with the demand"
+        tests:
+          - not_null   
+      - name: tenantid
+        description: "Tenant ID associated with the demand"
+        tests:
+          - not_null 
+      - name: meeting_date
+        description: "Date of the demand collection"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: date
+      - name: reporting_month
+        description: "Month of the reporting period"
+        tests:
+          - not_null  
+      - name: reporting_year
+        description: "Year of the reporting period"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+      - name: total_amount_paid
+        description: "Total amount paid by the consumer"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+      - name: total_amount_due
+        description: "Total amount due from the consumer"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+      - name: status
+        description: "Status of the demand collection"
+        tests:
+          - not_null  
+      - name: username
+        description: "Username of the person associated with the demand"
+        tests:
+          - not_null  
+      - name: total_advance
+        description: "Total amount paid by the consumer that is an advance"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+      - name: total_arrears
+        description: "Total amount that is pending by the consumer"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric  
+      - name: "माह"
+        description: "Added the numbers to months for ordering in charts"
+        tests:
+          - not_null              
+  - name: expenditure 
+    description: "This table stores expenditure data for tenants"
+    
+    columns:
+      - name: tenantid
+        description: "Unique tenant identifier"
+        tests:
+          - not_null 
+      - name: username
+        description: "Username associated with the tenant"
+        tests:
+          - not_null  
+      - name: total_expenditure
+        description: "Total expenditure of the tenant"
+        tests:
+          - not_null  
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric  
+
+      - name: "वर्ष"
+        description: "Year for which the reporting is done"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric
+
+      - name: "माह"
+        description: "Month for which the reporting is done"
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: text  
+      - name: total_amount_paid
+        description: "Total amount paid by the tenant"
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: numeric 
+
+
+
+  - name: avni_performance  # Replace with the actual table name
+    description: "Table to track water availability, quality, and related scores."
+    columns:
+      - name: username
+        description: "Username of the individual."
+        tests:
+          - not_null
+          - unique
+
+      - name: "जल_आपूर्ति_औसत" 
+        description: "Total days with water availability."
+        tests:
+          - not_null 
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 365 # (Optional)
+             
+
+      - name: total_days
+        description: "Total days."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 365 # (Optional)
+
+      - name: percent_days_with_water
+        description: "Percentage of days with water availability."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 100 # (Optional)
+
+      - name: "जल_उपलब्धता"
+        description: "Score for water availability."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
+
+      - name: "जल_गुणवत्ता"
+        description: "Score for water quality."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
+
+      - name: "wimc_मीटिंग"
+        description: "Score for WIMC meetings."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
+
+      - name:  "जल_चौपाल"
+        description: "Score for Jal Chaupal."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
+
+      - name: "जल_टैरिफ_संग्रह"
+        description: "Score for water tariff collection."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 1 # (Optional)
+
+      - name: "कुल_स्कोर"
+        description: "Total score aggregating different parameters."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+                min_value: 0  # (Optional)
+                max_value: 5 # (Optional)
+      
+      - name: "जल_गुणवत्ता_परीक्षण"
+        description: "Total number of times water quality testing was done."
+        tests:
+          - not_null
+
+      - name: "टैंक_सफाई_की_संख्या"
+        description: "Total number of times tank cleaning was done"
+        tests:
+          - not_null    
+
+      - name: "wimc_बैठक_की_संख्या"
+        description: "Total number of times WIMC meetings were held"
+        tests:
+          - not_null
+
+      - name: "जल_चौपाल_की_संख्या"
+        description: "Total number of times Jal chaupal was held"
+        tests:
+          - not_null
+
+       
