@@ -6,7 +6,7 @@ WITH source AS (
     SELECT
         "ID" AS id,
         audit,
-        "Groups" AS groups,
+        "Groups" AS thegroups,
         "Voided" AS voided,
         location,
         relatives,
@@ -52,7 +52,7 @@ SELECT
     id,
     audit,
     username,
-    groups,
+    thegroups,
     voided,
     location,
     relatives,

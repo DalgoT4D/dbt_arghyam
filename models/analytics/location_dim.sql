@@ -10,6 +10,6 @@ SELECT
     CURRENT_TIMESTAMP AS create_db_timestamp,
     '{{ invocation_id }}' AS create_audit_id,
     CURRENT_TIMESTAMP AS last_updated_timestamp,
-    '{{ invocation_id }}' AS update_audit_id 
+    '{{ invocation_id }}' AS update_audit_id
 FROM
-    {{ ref ('location_cdc') }} 
+    {{ ref ('location_cdc') }}

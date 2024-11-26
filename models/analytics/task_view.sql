@@ -15,7 +15,8 @@ pivoted AS (
     SELECT
         meeting_date::date,
         username,
-        EXTRACT(YEAR FROM meeting_date::timestamp) AS "वर्ष",
+        -- Changed alias to avoid keyword conflict
+        EXTRACT(YEAR FROM meeting_date::timestamp) AS year_value,
         CASE
             WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 1 THEN 'Jan'
             WHEN EXTRACT(MONTH FROM meeting_date::timestamp) = 2 THEN 'Feb'
@@ -32,24 +33,24 @@ pivoted AS (
         END AS reporting_month,
         MAX(
             CASE WHEN encounter_type = 'WIMC meeting' THEN 'Yes' ELSE 'No' END
-        ) AS "WIMC Meeting",
+        ) AS "WIMC_Meeting",
         MAX(
             CASE WHEN encounter_type = 'Jal Chaupal' THEN 'Yes' ELSE 'No' END
-        ) AS "Jal Chaupal",
+        ) AS "Jal_Chaupal",
         MAX(
             CASE
                 WHEN encounter_type = 'Log book record' THEN 'Yes' ELSE 'No'
             END
-        ) AS "Log book record",
+        ) AS "Log_Book_Record",
         MAX(
             CASE
                 WHEN encounter_type = 'Water Quality testing' THEN 'Yes' ELSE
                     'No'
             END
-        ) AS "Water Quality Testing",
+        ) AS "Water_Quality_Testing",
         MAX(
             CASE WHEN encounter_type = 'Tank Cleaning' THEN 'Yes' ELSE 'No' END
-        ) AS "Tank Cleaning"
+        ) AS "Tank_Cleaning"
     FROM source
     GROUP BY meeting_date, username
 )

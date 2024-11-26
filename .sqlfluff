@@ -1,9 +1,17 @@
 # https://docs.sqlfluff.com/en/stable/configuration.html#default-configuration
 
 [sqlfluff]
-# Supported dialects https://docs.sqlfluff.com/en/stable/dialects.html
-# Or run 'sqlfluff dialects'
-dialect = postgres
-# Comma separated list of rules to exclude, or None
-#exclude_rules = L001,L029
-#max_line_length = 120
+# Supported dialects: https://docs.sqlfluff.com/en/stable/dialects.html
+# Or run 'sqlfluff dialects' to see available dialects
+dialect = postgres  # Adjust to match your database dialect
+templater = dbt
+
+[sqlfluff:templater:dbt]
+# Path to your dbt project directory
+project_dir = /Users/nishikayadav/Desktop/arghyam/dbt_arghyam
+
+# Comma-separated list of rules to exclude
+exclude_rules = RF05,L001,L029,LT05
+
+# Max line length (set to 120 for larger lines)
+max_line_length = 120
