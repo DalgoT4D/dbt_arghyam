@@ -7,7 +7,7 @@ WITH source AS (
         enc.encounter_type,
         enc.username,
         enc.meeting_date
-    FROM {{ ref('encounters_cdc') }} AS enc
+    FROM {{ ref('dedup_enc') }} AS enc
     WHERE enc.meeting_date IS NOT NULL
 ),
 
