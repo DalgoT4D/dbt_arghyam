@@ -26,7 +26,7 @@ WITH extract_data AS (
                 OR key LIKE 'Take a picture of the meeting WIMC when there is maximum attendance'
         ) AS photos
     FROM
-        {{ ref ('encounters_cdc') }} AS enc
+        {{ ref ('dedup_enc') }} AS enc
     WHERE
         enc.observations IS NOT NULL
         AND CAST(enc.observations AS TEXT) <> '{}'

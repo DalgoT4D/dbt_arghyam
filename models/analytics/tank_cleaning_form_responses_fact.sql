@@ -16,7 +16,7 @@ tank_cleaning_raw_data AS (
         brd.district_name,
         brd.gp_name,
         enc.meeting_date
-    FROM {{ ref ('encounters_cdc') }} AS enc
+    FROM {{ ref ('dedup_enc') }} AS enc
     INNER JOIN {{ ref ('subjects_cdc') }} AS sub ON enc.subject_id = sub.id
     INNER JOIN {{ ref ('bridge_dim') }} AS brd ON sub.id = brd.subjects_id
     INNER JOIN {{ ref ('activity_dim') }} AS act ON enc.encounter_type = act.activity_type
