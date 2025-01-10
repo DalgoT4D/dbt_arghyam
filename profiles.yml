@@ -1,12 +1,12 @@
 dbt_arghyam:
   outputs:
-    intermediate:
-      dbname: dalgo
-      host: dalgo.cdybo3vdnbcr.ap-south-1.rds.amazonaws.com
-      password: purityWater47isnotAquafina
+    dev:
+      dbname: "{{ env_var('POSTGRES_DBNAME') }}"
+      host: "{{ env_var('POSTGRES_HOST') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD') }}"
       port: 5432
-      schema: intermediate
-      threads: 4
+      schema: dev
+      threads: 8
       type: postgres
-      user: dalgo
-  target: intermediate
+      user: "{{ env_var('POSTGRES_USER') }}"
+  target: dev
