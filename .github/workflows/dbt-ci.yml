@@ -59,6 +59,19 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
           DBT_PROFILES_DIR: /home/runner/.dbt
-  
+
+      - name: Benchmarking models
+        run: sqlfluff lint models --bench
+        env:
+          POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+
       - name: Lint models
         run: sqlfluff lint models -f human
+        env:
+          POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
