@@ -1,12 +1,12 @@
 name: Our first dbt PR job
-#updates
+
 on:
   pull_request:
     types:
-    - opened
-    - reopened
-    - synchronize
-    - ready_for_review
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
   push:
     branches:
       - '!main'
@@ -27,19 +27,51 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements.txt  
 
+      - name: Create profiles.yml
+        run: |
+          mkdir -p /home/runner/.dbt
+          echo "Creating profiles.yml..."
+          cat <<EOF > /home/runner/.dbt/profiles.yml
+          dbt_arghyam:
+            outputs:
+              dev:
+                dbname: "{{ env_var('POSTGRES_DBNAME') }}"
+                host: "{{ env_var('POSTGRES_HOST') }}"
+                password: "{{ env_var('POSTGRES_PASSWORD') }}"
+                port: 5432
+                schema: dev
+                threads: 8
+                type: postgres
+                user: "{{ env_var('POSTGRES_USER') }}"
+            target: dev
+          EOF
+          echo "profiles.yml created successfully."
+          ls -al /home/runner/.dbt
+
       - name: Install dbt dependencies
         run: dbt deps
 
-      - name: dbt build
-        run: dbt build --full-refresh --profiles-dir ./
+      - name: Run dbt build
+        run: dbt build --full-refresh
         env:
           POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-      
+          DBT_PROFILES_DIR: /home/runner/.dbt
+
       - name: Benchmarking models
-        run: "sqlfluff lint models --bench"
-  
+        run: sqlfluff lint models --bench
+        env:
+          POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+
       - name: Lint models
-        run: "sqlfluff lint models -f human"
+        run: sqlfluff lint models -f human
+        env:
+          POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
