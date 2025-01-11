@@ -31,19 +31,18 @@ jobs:
         run: |
           mkdir -p ~/.dbt
           cat <<EOF > ~/.dbt/profiles.yml
-          default:
-            target: dev
+          dbt_arghyam:
             outputs:
               dev:
-                type: postgres
-                host: ${{ secrets.POSTGRES_HOST }}
-                user: ${{ secrets.POSTGRES_USER }}
-                password: ${{ secrets.POSTGRES_PASSWORD }}
-                dbname: ${{ secrets.POSTGRES_DBNAME }}
-                schema: public
-                threads: 4
+                dbname: "{{ env_var('POSTGRES_DBNAME') }}"
+                host: "{{ env_var('POSTGRES_HOST') }}"
+                password: "{{ env_var('POSTGRES_PASSWORD') }}"
                 port: 5432
-                sslmode: prefer
+                schema: dev
+                threads: 8
+                type: postgres
+                user: "{{ env_var('POSTGRES_USER') }}"
+            target: dev
           EOF
 
       - name: Install dbt dependencies
@@ -52,8 +51,12 @@ jobs:
       - name: dbt build
         run: dbt build --full-refresh
         env:
+          POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
           DBT_PROFILES_DIR: ~/.dbt
-      
+
       - name: Benchmarking models
         run: sqlfluff lint models --bench
   
