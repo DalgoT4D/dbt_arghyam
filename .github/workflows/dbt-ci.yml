@@ -29,9 +29,9 @@ jobs:
 
       - name: Create profiles.yml
         run: |
-          mkdir -p ~/.dbt
+          mkdir -p /home/runner/.dbt
           echo "Creating profiles.yml..."
-          cat <<EOF > ~/.dbt/profiles.yml
+          cat <<EOF > /home/runner/.dbt/profiles.yml
           dbt_arghyam:
             outputs:
               dev:
@@ -46,7 +46,7 @@ jobs:
             target: dev
           EOF
           echo "profiles.yml created successfully."
-          ls -al ~/.dbt
+          ls -al /home/runner/.dbt
 
       - name: Install dbt dependencies
         run: dbt deps
@@ -58,7 +58,7 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          DBT_PROFILES_DIR: ~/.dbt
+          DBT_PROFILES_DIR: /home/runner/.dbt
 
       - name: Benchmarking models
         run: sqlfluff lint models --bench
