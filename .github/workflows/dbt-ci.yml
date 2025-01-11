@@ -30,6 +30,7 @@ jobs:
       - name: Create profiles.yml
         run: |
           mkdir -p ~/.dbt
+          echo "Creating profiles.yml..."
           cat <<EOF > ~/.dbt/profiles.yml
           dbt_arghyam:
             outputs:
@@ -44,11 +45,13 @@ jobs:
                 user: "{{ env_var('POSTGRES_USER') }}"
             target: dev
           EOF
+          echo "profiles.yml created successfully."
+          ls -al ~/.dbt
 
       - name: Install dbt dependencies
         run: dbt deps
 
-      - name: dbt build
+      - name: Run dbt build
         run: dbt build --full-refresh
         env:
           POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
