@@ -1,12 +1,12 @@
 name: Our first dbt PR job
-#updates
+
 on:
   pull_request:
     types:
-    - opened
-    - reopened
-    - synchronize
-    - ready_for_review
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
   push:
     branches:
       - '!main'
@@ -27,19 +27,35 @@ jobs:
       - name: Install requirements
         run: pip install -r requirements.txt  
 
+      - name: Create profiles.yml
+        run: |
+          mkdir -p ~/.dbt
+          cat <<EOF > ~/.dbt/profiles.yml
+          default:
+            target: dev
+            outputs:
+              dev:
+                type: postgres
+                host: ${{ secrets.POSTGRES_HOST }}
+                user: ${{ secrets.POSTGRES_USER }}
+                password: ${{ secrets.POSTGRES_PASSWORD }}
+                dbname: ${{ secrets.POSTGRES_DBNAME }}
+                schema: public
+                threads: 4
+                port: 5432
+                sslmode: prefer
+          EOF
+
       - name: Install dbt dependencies
         run: dbt deps
 
       - name: dbt build
-        run: dbt build --full-refresh --profiles-dir ./
+        run: dbt build --full-refresh
         env:
-          POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          DBT_PROFILES_DIR: ~/.dbt
       
       - name: Benchmarking models
-        run: "sqlfluff lint models --bench"
+        run: sqlfluff lint models --bench
   
       - name: Lint models
-        run: "sqlfluff lint models -f human"
+        run: sqlfluff lint models -f human
