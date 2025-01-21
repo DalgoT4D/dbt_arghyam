@@ -30,6 +30,7 @@
 WITH water_stats AS (
     SELECT
         username,
+        avg(days_with_water) AS avg_days_with_water,
         SUM(days_with_water) AS total_days_with_water,
         SUM(days_with_water + days_no_water) AS total_days
     FROM
@@ -108,6 +109,7 @@ tariff_collection AS (
 SELECT
     ws.username,
     ws.total_days,
+    ws.avg_days_with_water AS "पानी के औसत दिनों",
     COALESCE(ws.total_days_with_water, 0) AS "जलापूर्ति_वाले_दिन",
     (ws.total_days_with_water::FLOAT / ws.total_days)
     * 100 AS percent_days_with_water,
