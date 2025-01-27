@@ -6,6 +6,7 @@ WITH ward AS (
         log.district_name,
         log.block_name,
         log.gp_name,
+        log.created_at_timestamp,
         log.username,
         log.created_at_timestamp,
         'w'
