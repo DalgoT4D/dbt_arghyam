@@ -1,5 +1,3 @@
-{% set invocation_id = 'some_value' %}
-
 {{
     config(
         materialized='table',
@@ -84,8 +82,7 @@ final_calculation AS (
             WHEN total_days_in_month - coalesce(days_no_water::int, 0) >= 27 THEN 'Yes'
             ELSE 'No'
         END AS met_27_days_goal,
-        current_timestamp AS create_db_timestamp,
-        '{{ invocation_id }}' AS create_audit_id
+        current_timestamp AS create_db_timestamp
     FROM calculate_days
 )
 
@@ -103,6 +100,5 @@ SELECT
     reasons_no_water,
     total_days_in_month,
     days_with_water,
-    met_27_days_goal,
-    create_audit_id
+    met_27_days_goal
 FROM final_calculation

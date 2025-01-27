@@ -45,7 +45,10 @@ ranked_ward AS (
     SELECT
         w.*,
         ROW_NUMBER()
-            OVER (PARTITION BY w.username ORDER BY w.created_at_timestamp DESC)
+            OVER (
+                PARTITION BY w.username
+                ORDER BY w.created_at_timestamp DESC
+            )
         AS row_num
     FROM ward AS w
 )

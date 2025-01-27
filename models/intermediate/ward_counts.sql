@@ -2,15 +2,13 @@
 
 
 WITH total_wards_cte AS (
-    SELECT
-        COUNT(DISTINCT "Catchement( Dist, Block, GP, Ward)") AS total_wards
+    SELECT COUNT(DISTINCT "Catchement( Dist, Block, GP, Ward)") AS total_wards
     FROM 
         prod_intermediate_seeds.ward_master_list
 ),
 
 received_wards_cte AS (
-    SELECT
-        COUNT(DISTINCT tenantid) AS received_wards
+    SELECT COUNT(DISTINCT tenantid) AS received_wards
     FROM 
         {{ ref('transformed_tenantid') }}
 )
