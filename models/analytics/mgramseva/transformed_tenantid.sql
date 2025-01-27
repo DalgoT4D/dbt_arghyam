@@ -56,7 +56,6 @@ SELECT
     w.gp_name,
     w.ward_name,
     w.ward_code,
-    w.created_at_timestamp,
     w.username,
     'br.'
     || LOWER(w.district_name)
