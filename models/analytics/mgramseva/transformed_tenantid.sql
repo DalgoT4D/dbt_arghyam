@@ -6,7 +6,6 @@ WITH ward AS (
         log.district_name,
         log.block_name,
         log.gp_name,
-        log.created_at_timestamp,
         log.username,
         log.created_at_timestamp,
         'w'
@@ -57,6 +56,7 @@ SELECT
     w.gp_name,
     w.ward_name,
     w.ward_code,
+    w.created_at_timestamp,
     w.username,
     'br.'
     || LOWER(w.district_name)

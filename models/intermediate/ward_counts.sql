@@ -12,7 +12,7 @@ received_wards_cte AS (
     SELECT
         COUNT(DISTINCT tenantid) AS received_wards
     FROM 
-        {{ ref ('transformed_tenantid') }}
+        {{ ref('transformed_tenantid') }}
 )
 
 SELECT 
