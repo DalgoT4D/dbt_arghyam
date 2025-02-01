@@ -29,17 +29,13 @@ final_table AS (
         wm.avni_username,
         wm.name,
         wm.mobile_numbers,
-        wm.district_name AS master_district_name,
-        wm.block_name AS master_block_name,
-        wm.gp_name AS master_gp_name,
-        wm.ward_name AS master_ward_name,
+        wm.district_name AS district_name,
+        wm.block_name AS block_name,
+        wm.gp_name AS gp_name,
+        wm.ward_name AS ward_name,
         td.username,
         td.tenantid,
         td.ward_code,
-        td.district_name AS tenantdata_district_name,
-        td.block_name AS tenantdata_block_name,
-        td.gp_name AS tenantdata_gp_name,
-        td.ward_name AS tenantdata_ward_name,
         CASE 
             WHEN td.username IS NOT NULL THEN 'YES'
             ELSE 'NO'
