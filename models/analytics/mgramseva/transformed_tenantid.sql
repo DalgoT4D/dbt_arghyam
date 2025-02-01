@@ -7,6 +7,7 @@ WITH ward AS (
         log.block_name,
         log.gp_name,
         log.username,
+        log.created_at_timestamp,
         'w'
         || CASE SUBSTRING(log.ward_name, 2, 1) -- get the first digit after 'W'
             WHEN '0' THEN 'a'
@@ -37,9 +38,20 @@ WITH ward AS (
             ELSE SUBSTRING(log.ward_name, 3, 1)
         END AS ward_code
     FROM
-        {{ref('get_username')}} AS log
-)
+        intermediate_analytics.log_book_form_responses_fact AS log
+),
 
+ranked_ward AS (
+    SELECT
+        w.*,
+        ROW_NUMBER()
+            OVER (
+                PARTITION BY w.username
+                ORDER BY w.created_at_timestamp DESC
+            )
+        AS row_num
+    FROM ward AS w
+)
 
 SELECT
     w.district_name,
@@ -53,5 +65,5 @@ SELECT
     || LOWER(w.block_name)
     || LOWER(REPLACE(w.gp_name, ' ', ''))
     || w.ward_code AS tenantid
-FROM ward AS w
-
+FROM ranked_ward AS w
+WHERE w.row_num = 1
